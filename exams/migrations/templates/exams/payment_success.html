@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="col-md-8">
+    <div class="card mb-3">
+        <div class="card-body text-center">
+            <div class="success-animation mb-4">
+                <i class="fas fa-check-circle text-success" 
+                   style="font-size: 64px; animation: scaleIn 0.5s ease-in-out;">
+                </i>
+            </div>
+            
+            <h2 class="card-title text-success mb-3" style="color: #2c3e50; font-weight: 600;">
+                Payment Successful!
+            </h2>
+            
+            <div class="success-details p-4 mb-4" 
+                 style="background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%); 
+                        border-radius: 12px; color: white;">
+                <p class="mb-2" style="font-size: 1.1rem;">
+                    Thank you for your subscription!
+                </p>
+                <p class="mb-0">
+                    Your account has been successfully upgraded to Premium.
+                </p>
+            </div>
+
+            <div class="premium-features mb-4">
+                <h5 class="mb-3">You now have access to:</h5>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3" 
+                             style="background: #f8f9fa; border-radius: 10px;">
+                            <i class="fas fa-crown mb-2" style="color: #ffd700; font-size: 24px;"></i>
+                            <p class="mb-0">Premium Exams</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3" 
+                             style="background: #f8f9fa; border-radius: 10px;">
+                            <i class="fas fa-chart-line mb-2" style="color: #3498db; font-size: 24px;"></i>
+                            <p class="mb-0">Detailed Analytics</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3" 
+                             style="background: #f8f9fa; border-radius: 10px;">
+                            <i class="fas fa-star mb-2" style="color: #f1c40f; font-size: 24px;"></i>
+                            <p class="mb-0">Special Features</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{% url 'exam_list' %}" 
+                   class="btn btn-primary btn-lg" 
+                   style="border-radius: 25px; padding: 10px 30px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <i class="fas fa-home me-2"></i>Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes scaleIn {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .feature-card {
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+    }
+
+    .success-animation i {
+        animation: scaleIn 0.5s ease-in-out;
+    }
+</style>
+{% endblock %} 

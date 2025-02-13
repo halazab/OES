@@ -1,0 +1,27 @@
+<h2>Your Performance Analytics</h2>
+<canvas id="performanceChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const data = {{ data|safe }};
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.exams,
+            datasets: [{
+                label: 'Scores',
+                data: data.scores,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>

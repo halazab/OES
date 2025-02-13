@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Complete Your Payment</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h4>Payment Details</h4>
+                        <p class="lead">Amount: {{ payment.amount }} ETB</p>
+                        <p>Reference: {{ payment.transaction_reference }}</p>
+                        <p>Subscription: {{ subscription.subscription_type|title }}</p>
+                        <p>Duration: {{ subscription.end_date|timeuntil:subscription.start_date }}</p>
+                    </div>
+                    
+                    <!-- Add your payment gateway form here -->
+                    <form id="paymentForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="reference" value="{{ reference }}">
+                        <input type="hidden" name="amount" value="{{ amount }}">
+                        
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="expiryDate" class="form-label">Expiry Date</label>
+                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            Pay {{ payment.amount }} ETB
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        // Show loading state
+        Swal.fire({
+            title: 'Processing Payment',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading()
+            }
+        });
+        
+        // Add your payment processing logic here
+        // This is where you'd integrate with your payment gateway
+        
+        // For demonstration, we'll simulate a successful payment
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success message
+        await Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: 'Your subscription has been activated.',
+            confirmButtonText: 'Continue'
+        });
+        
+        // Redirect to dashboard or appropriate page
+        window.location.href = '/dashboard/';
+        
+    } catch (error) {
+        console.error('Payment error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: error.message || 'An error occurred during payment processing',
+            confirmButtonText: 'Try Again'
+        });
+    }
+});
+</script>
+{% endblock %} 

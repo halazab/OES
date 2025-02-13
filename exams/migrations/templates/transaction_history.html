@@ -1,0 +1,153 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Transaction History</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" onclick="exportTransactions()">
+                <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+            <button class="btn btn-info" onclick="generateReport()">
+                <i class="fas fa-chart-bar"></i> Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Transaction Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="text-center">
+                    <div class="card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>${{ total_revenue }}</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="text-center">
+                    <div class="card-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3>{{ total_transactions }}</h3>
+                    <p>Total Transactions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="text-center">
+                    <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>{{ successful_transactions }}</h3>
+                    <p>Successful Transactions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="text-center">
+                    <div class="card-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h3>{{ failed_transactions }}</h3>
+                    <p>Failed Transactions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="dashboard-card">
+        <div class="table-responsive">
+            <table class="custom-table" id="transactionsTable">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_reference }}</td>
+                        <td>{{ transaction.user.get_full_name }}</td>
+                        <td>{{ transaction.get_status_display }}</td>
+                        <td>${{ transaction.amount }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if transaction.status == 'success' %}bg-success
+                                {% elif transaction.status == 'pending' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ transaction.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewTransaction('{{ transaction.id }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="transactionDetails">
+                <!-- Transaction details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        $('#transactionsTable').DataTable({
+            order: [[5, 'desc']],
+            pageLength: 10
+        });
+    });
+
+    function viewTransaction(transactionId) {
+        $.get(`#`, function(response) {
+            $('#transactionDetails').html(response);
+            $('#transactionModal').modal('show');
+        });
+    }
+
+    function exportTransactions() {
+        window.location.href = '#';
+    }
+
+    function generateReport() {
+        window.location.href = '#';
+    }
+</script>
+{% endblock %} 

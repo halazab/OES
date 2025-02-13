@@ -1,0 +1,26 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h2 class="card-title mt-3">Payment Successful!</h2>
+                    <p class="card-text">
+                        Thank you for your payment. Your subscription has been activated successfully.
+                    </p>
+                    <div class="mt-4">
+                        <a href="{% url 'profile' %}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

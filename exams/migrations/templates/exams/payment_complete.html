@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            {% if payment.status == 'success' %}
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="mb-4">Payment Successful!</h2>
+                        <p class="lead text-muted mb-4">
+                            Your {{ subscription.subscription_type|title }} subscription has been activated.
+                        </p>
+                        <div class="payment-details mb-4">
+                            <p><strong>Amount Paid:</strong> {{ payment.amount }} ETB</p>
+                            <p><strong>Reference:</strong> {{ payment.transaction_reference }}</p>
+                            <p><strong>Date:</strong> {{ payment.created_at|date:"F j, Y" }}</p>
+                        </div>
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                            Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-times-circle text-danger" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="mb-4">Payment Failed</h2>
+                        <p class="lead text-muted mb-4">
+                            We couldn't process your payment. Please try again.
+                        </p>
+                        <a href="{% url 'subscription_plans' %}" class="btn btn-primary btn-lg">
+                            Try Again
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

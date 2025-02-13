@@ -1,0 +1,4037 @@
+{% comment %}  <h2>Teacher Dashboard</h2>
+<a href="{% url 'create_exam' %}">Create Exam</a>
+<h3>Your Exams</h3>
+<ul>
+    {% for exam in exams %}
+        <li>{{ exam.title }} - <a href="{% url 'view_results' exam.id %}">View Results</a></li>
+    {% endfor %}
+</ul> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #f8f9fa;
+            padding: 20px;
+            color: #333;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .logout-link {
+            background: transparent;
+            border: none;
+            color: #ff7675;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            transition: color 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-link:hover {
+            color: #ff6b6b;
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: transparent;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 3px solid #f1f2f6;
+            object-fit: cover;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            padding: 15px 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            color: #495057;
+            background-color: transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #ffffff;
+            color: #2d3436;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .activities-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .today-activities, .recent-activities {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .activity-card {
+            padding: 15px;
+            border-radius: 8px;
+            background: #ffffff;
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-card:hover {
+            transform: translateX(5px);
+            background: #f1f2f6;
+        }
+
+        .activity-description {
+            color: #2d3436;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        .activity-date {
+            color: #636e72;
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+
+        .submissions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .today-submissions, .recent-submissions {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: #2d3436;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .search-input-group {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-group:focus-within {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            border-color: #4a90e2;
+            transform: translateY(-1px);
+        }
+
+        .search-input {
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            background: transparent;
+            border-radius: 50px;
+            flex: 1;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .search-input::placeholder {
+            color: #adb5bd;
+            font-weight: 300;
+        }
+
+        .search-button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: transparent;
+            color: #666;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-button:hover {
+            background: transparent;
+            transform: translateX(2px);
+            color: #333;
+        }
+
+        .search-button i {
+            font-size: 0.9rem;
+        }
+
+        /* Custom styles for submission tables */
+        .submission-table {
+            margin-top: 2rem;
+            width: 100%;
+            margin-bottom: 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .submission-table .table {
+            margin: 0;
+            border-collapse: collapse;
+            width: 100%;
+            text-align: center;
+        }
+
+        .submission-table thead {
+            background: white;
+            border: none;
+            text-align: center;
+        }
+
+        .submission-table th {
+            color: #444;
+            font-weight: 600;
+            padding: 18px 25px;
+            border: none;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: white;
+        }
+
+        .submission-table td {
+            padding: 20px 25px;
+            border: none;
+            font-size: 0.95rem;
+            color: #444;
+            vertical-align: middle;
+        }
+
+        .submission-table tbody tr {
+            transition: all 0.3s ease;
+            border: none;
+            background: white;
+        }
+
+        .submission-table tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .submission-table .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            border-radius: 15px;
+        }
+
+        /* Remove any row separators */
+        .submission-table tbody tr::after {
+            display: none;
+        }
+
+        /* Status badges for submission table */
+        .submission-table .status-badge {
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background-color: #e3fcef;
+            color: #00875a;
+        }
+
+        .status-pending {
+            background-color: #fff4e5;
+            color: #b76e00;
+        }
+
+        .status-late {
+            background-color: #ffe8e8;
+            color: #c92a2a;
+        }
+
+        /* Score column styling */
+        .submission-table .score-cell {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        /* Time column styling */
+        .submission-table .time-cell {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Name column styling */
+        .submission-table .name-cell {
+            font-weight: 500;
+            color: #2d3436;
+        }
+
+        /* Badge styles */
+        .badge {
+            padding: 6px 12px;
+            font-weight: 500;
+            border-radius: 20px;
+        }
+
+        .badge.bg-success {
+            background-color: #28a745 !important;
+        }
+
+        .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+
+        .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        /* Grade colors */
+        .table td:nth-child(5) {
+            font-weight: 600;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            color: #666;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .btn-action:hover {
+            color: #333;
+        }
+
+        .btn-action i {
+            font-size: 1.1rem;
+        }
+
+        .btn-action:first-child:hover {
+            color: #4a90e2;
+        }
+
+        .btn-action:last-child:hover {
+            color: #dc3545;
+        }
+
+        .exam-management-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .table-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .submission-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .table-section h2 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .table-section h2 i {
+            font-size: 1.2rem;
+        }
+
+        .create-exam-container {
+            padding: 2rem;
+        }
+
+        .question-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .question-btn-row {
+            width: 100%;
+        }
+
+        .question-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            color: #495057;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            justify-content: center;
+        }
+
+        .question-btn:hover {
+            background-color: #e9ecef;
+            transform: translateX(10px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-btn i {
+            font-size: 1.2rem;
+        }
+
+        .exam-form-window, 
+        .question-type-buttons, 
+        .randomization-section {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .exam-form-window {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .randomization-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .randomize-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .radio-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .radio-container:hover {
+            background-color: #f8f9fa;
+            transform: translateX(10px);
+        }
+
+        .radio-label {
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.half {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: #2d3436;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #adb5bd;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        .form-group textarea::placeholder {
+            color: #adb5bd;
+        }
+
+        /* Update existing styles to maintain spacing */
+        .question-type-buttons {
+            margin-top: 2rem;
+        }
+
+        .exam-preview {
+            max-width: 800px;
+            margin: 2rem auto;
+            width: 100%;
+        }
+
+        .preview-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2d3436;
+            padding-top: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .question-actions button {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            border: 1px solid #dee2e6;
+            position: relative;
+            cursor: default;
+        }
+
+        .question-card.draggable {
+            cursor: move;
+        }
+
+        .drag-handle {
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            cursor: move;
+            display: none;
+        }
+
+        .question-card.dragging {
+            opacity: 0.5;
+            background: #f8f9fa;
+        }
+
+        .drag-over {
+            border: 2px dashed #4a90e2;
+        }
+
+        .question-card .card-body {
+            padding: 2rem;
+        }
+
+        .question-content {
+            padding: 1rem 0;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+        }
+
+        /* Update these styles */
+        .question-text.editing {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 20px;
+            background: white;
+            min-height: 80px;
+            width: 100%;
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+
+        /* Add specific height adjustments for True/False and Fill in Blank */
+        .question-card[data-question-id="2"] .question-text.editing,  /* True/False */
+        .question-card[data-question-id="3"] .question-text.editing { /* Fill in Blank */
+            min-height: 120px; /* Increased height for these specific question types */
+        }
+
+        .blank-input {
+            display: inline-block;
+            min-width: 120px; /* Increased from 60px */
+            border-bottom: 2px solid #4A90E2;
+            text-align: center;
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .question-save-btn {
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 14px;
+            display: none;
+            transition: color 0.3s ease;
+        }
+
+        .question-save-btn:hover {
+            color: #212529;
+        }
+
+        .question-save-btn.visible {
+            display: inline-block;
+        }
+
+        .choice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 0.5rem;
+        }
+
+        .choice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1rem 1rem 3rem;
+            position: relative;
+            color: #34495E;
+            font-size: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .choice-item:before {
+            content: "";
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #4A90E2;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .choice-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .choice-btn {
+            background: none;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-size: 14px;
+            color: #6c757d; /* Default gray color */
+        }
+
+        .choice-btn:hover {
+            color: #212529; /* Black color on hover */
+        }
+
+        .choice-btn.edit {
+            color: #6c757d; /* Gray color */
+        }
+
+        .choice-btn.edit:hover {
+            color: #212529; /* Black color on hover */
+        }
+
+        .choice-btn.delete {
+            color: #6c757d; /* Gray color */
+        }
+
+        .choice-btn.delete:hover {
+            color: #212529; /* Black color on hover */
+        }
+
+        .exam-preview-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            width: 100%;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2d3436;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .exam-preview-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+
+        /* Custom scrollbar styles */
+        .exam-preview-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .exam-preview-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .exam-preview-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .exam-preview-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .save-finish-container {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .save-finish-btn {
+            width: 120px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .save-finish-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .profile-container {
+            padding: 20px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .large-profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f1f2f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .change-photo-btn {
+            background: #f8f9fa;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .change-photo-btn:hover {
+            background: #e9ecef;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .profile-info h3 {
+            font-size: 24px;
+            color: #2d3436;
+            margin: 0;
+        }
+
+        .profile-info .department {
+            color: #636e72;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .profile-info .email {
+            color: #2d3436;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .detail-section h4 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-item label {
+            color: #636e72;
+            font-size: 14px;
+        }
+
+        .detail-item input {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #2d3436;
+            background: #f8f9fa;
+        }
+
+        .detail-item input:read-only {
+            cursor: default;
+        }
+
+        /* Add styles for active nav item */
+        .nav-item.active {
+            background-color: #ffffff;
+            color: #2d3436;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .profile-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .save-profile-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .save-profile-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        .save-profile-btn:active {
+            transform: translateY(0);
+            background: #495057;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detail-item input {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #2d3436;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .detail-item input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .save-success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .question-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #343a40;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-btn.add {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Add these styles */
+        .choice-text {
+            padding: 5px;
+            flex: 1;
+        }
+
+        .choice-text.editing {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-right: 10px;
+            background: white;
+        }
+
+        .save-btn {
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 14px;
+            display: none;
+            transition: color 0.3s ease;
+        }
+
+        .save-btn:hover {
+            color: #212529;
+        }
+
+        .save-btn.visible {
+            display: inline-block;
+        }
+
+        .question-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .question-marks {
+            color: #6c757d;
+            font-size: 0.9rem;
+            padding: 0.2rem 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group.half {
+            flex: 1;
+        }
+
+        /* Add validation styles */
+        #passingMarks.invalid {
+            border-color: #dc3545;
+            background-color: #fff8f8;
+        }
+
+        #passingMarks.invalid:focus {
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+        }
+
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .input-with-suffix {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-suffix input {
+            padding-right: 40px; /* Make room for the suffix */
+            width: 100%;
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 12px;
+            color: #495057;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        #passingMarks.invalid {
+            border-color: #dc3545;
+            background-color: #fff8f8;
+        }
+
+        #passingMarks.invalid:focus {
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+        }
+
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        /* Add new styles for grading scale */
+        .grading-inputs {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .grade-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .grade-input-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .grade-input-group label {
+            font-size: 0.9rem;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .grade-input-group .input-with-suffix {
+            margin-top: 0.25rem;
+        }
+
+        .grade-input-group input {
+            width: 100%;
+            padding: 0.8rem;
+            padding-right: 40px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .grade-input-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        /* Modified grading scale section */
+        .grade-setup {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .grade-count-input {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .input-with-button input {
+            width: 200px;
+            padding: 0.8rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn {
+            padding: 0.8rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .grade-scales {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .grade-scale-item {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .grade-name-input {
+            flex: 1;
+        }
+
+        .grade-range {
+            flex: 2;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .grade-range-input {
+            flex: 1;
+            position: relative;
+        }
+
+        .grade-range-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .grade-name-input input,
+        .grade-range-input input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .grade-range-separator {
+            color: #6c757d;
+            padding: 0 0.5rem;
+        }
+
+        .exam-management-container tr {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .exam-management-container tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .exam-description-section {
+            padding: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #4a90e2;
+            font-size: 16px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: #357abd;
+        }
+
+        .exam-description-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .exam-description-card h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .exam-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .exam-meta span {
+            color: #636e72;
+            font-size: 14px;
+            padding: 5px 12px;
+            background: #f8f9fa;
+            border-radius: 20px;
+        }
+
+        .exam-description-content h4 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .exam-description-content p {
+            color: #636e72;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .exam-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .submit-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .exam-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .exam-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .exam-section h4 {
+            margin-bottom: 20px;
+            color: #2d3436;
+            font-size: 18px;
+        }
+
+        .grade-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .grade-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .grade-table th,
+        .grade-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .grade-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .grade-table td {
+            color: #636e72;
+        }
+
+        /* Add these styles */
+        .submissions-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .submissions-content .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .submissions-content .search-container {
+            width: 300px;
+        }
+
+        .submissions-content .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .submissions-content .table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .submissions-content .table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .submissions-content .table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Add these styles */
+        .show-answers-section {
+            max-width: 800px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .show-answers-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .toggle-text {
+            color: #495057;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .correct-answer {
+            background-color: #e3fcef !important;
+            border: 1px solid #00875a !important;
+            position: relative;
+        }
+
+        .answer-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #28a745;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .answer-indicator i {
+            font-size: 0.8rem;
+        }
+
+        /* Style for fill in blank answers */
+        .blank-input + .answer-indicator {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span class="dashboard-text">Dashboard</span>
+            <a href="{% url 'signout' %}" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+        
+        <div class="profile-section">
+            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+            <p>{{ prfoile.user.first_name }}</p>
+            <p style="color: #636e72; font-size: 14px; padding-top: 5px;">Mathematics Department</p>
+        </div>
+        
+        <div class="nav-item" onclick="showProfile()">
+            <i class="fas fa-user me-2"></i>
+            Profile
+        </div>
+        
+        <div class="nav-item" onclick="showActivities()">
+            <i class="fas fa-clock me-2"></i>
+            Recent Activities
+        </div>
+        <div class="nav-item" onclick="showSubmissions()">
+            <i class="fas fa-file-alt me-2"></i>
+            Submissions
+        </div>
+        <div class="nav-item" onclick="showExamManagement()">
+            <i class="fas fa-tasks me-2"></i>
+            Exam Management
+        </div>
+        <div class="nav-item" onclick="showCreateExam()">
+            <i class="fas fa-plus-circle me-2"></i>
+            Create New Exam
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="activities-container" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-clock me-2"></i>Recent Activities</h2>
+            </div>
+            <div class="today-activities">
+                <h2>Today's Activities</h2>
+                <div class="activity-card">
+                    <p class="activity-description">Created new Math exam for Grade 10</p>
+                    <p class="activity-date">10:30 AM</p>
+                </div>
+                <div class="activity-card">
+                    <p class="activity-description">Reviewed submissions for Physics Quiz</p>
+                    <p class="activity-date">9:15 AM</p>
+                </div>
+            </div>
+
+            <div class="recent-activities">
+                <h2>Recent Activities</h2>
+                <div class="activity-card">
+                    <p class="activity-description">Updated Chemistry exam questions</p>
+                    <p class="activity-date">Yesterday, 2:45 PM</p>
+                </div>
+                <div class="activity-card">
+                    <p class="activity-description">Graded Biology assignments</p>
+                    <p class="activity-date">2 days ago</p>
+                </div>
+                <div class="activity-card">
+                    <p class="activity-description">Created new assignment for Grade 11</p>
+                    <p class="activity-date">3 days ago</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="submissions-container" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-file-alt me-2"></i>Submissions</h2>
+            </div>
+            
+            <!-- Today's Submissions Section -->
+            <div class="table-section">
+                <h2><i class="fas fa-clock me-2"></i>Today's Submissions</h2>
+                <div class="search-container">
+                    <div class="search-input-group">
+                        <input type="text" class="search-input" placeholder="Search today's submissions...">
+                        <button class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="submission-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr onclick="showExamDetails()">
+                                    <td>John Doe</td>
+                                    <td>Mathematics</td>
+                                    <td>45/50</td>
+                                    <td>90%</td>
+                                    <td>A</td>
+                                    <td>10:00 AM</td>
+                                    <td>11:00 AM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Alice Smith</td>
+                                    <td>Physics</td>
+                                    <td>42/50</td>
+                                    <td>84%</td>
+                                    <td>B</td>
+                                    <td>11:15 AM</td>
+                                    <td>12:15 PM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Robert Johnson</td>
+                                    <td>Chemistry</td>
+                                    <td>48/50</td>
+                                    <td>96%</td>
+                                    <td>A</td>
+                                    <td>1:30 PM</td>
+                                    <td>2:30 PM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Emma Davis</td>
+                                    <td>Biology</td>
+                                    <td>41/50</td>
+                                    <td>82%</td>
+                                    <td>B</td>
+                                    <td>2:45 PM</td>
+                                    <td>3:45 PM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>James Wilson</td>
+                                    <td>English</td>
+                                    <td>44/50</td>
+                                    <td>88%</td>
+                                    <td>B</td>
+                                    <td>4:00 PM</td>
+                                    <td>5:00 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- This Week's Submissions Section -->
+            <div class="table-section">
+                <h2><i class="fas fa-calendar-week me-2"></i>This Week's Submissions</h2>
+                <div class="search-container">
+                    <div class="search-input-group">
+                        <input type="text" class="search-input" placeholder="Search this week's submissions...">
+                        <button class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="submission-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr onclick="showExamDetails()">
+                                    <td>John Smith</td>
+                                    <td>Basic Mathematics</td>
+                                    <td>45/50</td>
+                                    <td>90%</td>
+                                    <td>A</td>
+                                    <td>9:00 AM</td>
+                                    <td>10:00 AM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Emily Johnson</td>
+                                    <td>English Grammar</td>
+                                    <td>40/50</td>
+                                    <td>80%</td>
+                                    <td>B</td>
+                                    <td>10:15 AM</td>
+                                    <td>11:00 AM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Michael Brown</td>
+                                    <td>Physics</td>
+                                    <td>47/50</td>
+                                    <td>94%</td>
+                                    <td>A</td>
+                                    <td>1:00 PM</td>
+                                    <td>2:00 PM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>Sarah Wilson</td>
+                                    <td>Chemistry</td>
+                                    <td>38/50</td>
+                                    <td>76%</td>
+                                    <td>C</td>
+                                    <td>2:30 PM</td>
+                                    <td>3:30 PM</td>
+                                </tr>
+                                <tr onclick="showExamDetails()">
+                                    <td>David Lee</td>
+                                    <td>Biology</td>
+                                    <td>43/50</td>
+                                    <td>86%</td>
+                                    <td>B</td>
+                                    <td>3:45 PM</td>
+                                    <td>4:45 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="exam-management-container">
+            <!-- Table View with Header -->
+            <div id="examTableView">
+                <!-- Header Section with Title and Search -->
+                <div class="section-header">
+                    <h2><i class="fas fa-file-alt me-2"></i>Exam Management</h2>
+                    <div class="search-container">
+                        <div class="search-input-group">
+                            <input type="text" class="search-input" placeholder="Search exams...">
+                            <button class="search-button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-section">
+                    <div class="submission-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Date </th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                {% for exams in exams %}
+                                <tbody>
+                                    
+                                    <tr onclick="showExamDescription(1)">
+                                        
+                                        <td class="name-cell">{{exams.title}}</td>
+                                        <td class="time-cell">{{exams.created_at}}</td>
+                                        <td>{{exams.duration}}</td>
+                                        <td><span class="status-badge status-pending">Upcoming</span></td>
+                                        
+                                    </tr>
+                                   
+                                </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Description View -->
+            <div class="exam-description-section" id="examDescriptionView" style="display: none;">
+                <!-- Main back button - should only show when in description view -->
+                <button class="back-btn" onclick="showExamTable()" id="backToExamListBtn">
+                    <i class="fas fa-arrow-left"></i> Back to Exam List
+                </button>
+                
+                <!-- Submissions view with its own back button -->
+                <div id="examSubmissionsView" style="display: none;">
+                    <button class="back-btn" onclick="backToExamDescription()">
+                        <i class="fas fa-arrow-left"></i> Back to Exam Details
+                    </button>
+                    
+                    <div class="submissions-content">
+                        <div class="section-header">
+                            <h3><i class="fas fa-paper-plane me-2"></i>Exam Submissions</h3>
+                            <div class="search-container">
+                                <div class="search-input-group">
+                                    <input type="text" class="search-input" placeholder="Search submissions...">
+                                    <button class="search-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="submission-table">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student Name</th>
+                                            <th>Score</th>
+                                            <th>Score (100)</th>
+                                            <th>Grade</th>
+                                            <th>Start Time</th>
+                                            <th>End Time</th>
+                                            <th>Submission Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="submissionsTableBody">
+                                        <!-- Submissions will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Existing exam description content -->
+                <div class="exam-description-card" id="examDescriptionCard">
+                    <div class="exam-header">
+                        <h3 id="examTitle"></h3>
+                        <div class="exam-actions">
+                            <button class="action-btn edit-btn" onclick="editExistingExam()">
+                                <i class="fas fa-edit"></i> Edit Exam
+                            </button>
+                            <button class="action-btn submit-btn">
+                                <i class="fas fa-paper-plane"></i> Submissions
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Created On</span>
+                            <span class="info-value" id="examCreationDate"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Duration</span>
+                            <span class="info-value" id="examDuration"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total Questions</span>
+                            <span class="info-value" id="examTotalQuestions"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total Marks</span>
+                            <span class="info-value" id="examTotalMarks"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Passing Mark</span>
+                            <span class="info-value" id="examPassingMark"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span class="info-value" id="examStatus"></span>
+                        </div>
+                    </div>
+
+                    <div class="exam-section">
+                        <h4>Description</h4>
+                        <p id="examDescription"></p>
+                    </div>
+
+                    <div class="exam-section">
+                        <h4>Grade Information</h4>
+                        <div class="grade-table" id="examGradeInfo">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Grade</th>
+                                        <th>Range</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gradeTableBody">
+                                    <!-- Grade rows will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="create-exam-container" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-plus-circle me-2"></i>Create New Exam</h2>
+            </div>
+
+            <!-- Exam Form Window -->
+         <div class="exam-form-window">
+                <div class="form-group">
+                    <label for="examTitle">
+                        <i class="fas fa-book me-2"></i>
+                        Exam Title
+                    </label>
+                    <input type="text" id="examTitle" placeholder="Enter exam title">
+                </div>
+
+                <div class="form-group">
+                    <label for="examDescription">
+                        <i class="fas fa-align-left me-2"></i>
+                        Description
+                    </label>
+                    <textarea id="examDescription" placeholder="Enter exam description" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="examDuration">
+                            <i class="fas fa-clock me-2"></i>
+                            Duration (minutes)
+                        </label>
+                        <input type="number" id="examDuration" placeholder="Enter duration">
+                    </div>
+                    <div class="form-group half">
+                        <label for="totalMarks"><i class="fas fa-star"></i> Total Marks</label>
+                        <input type="number" id="totalMarks" min="0" placeholder="Enter total marks">
+                    </div>
+                    <div class="form-group half">
+                        <label for="passingMarks"><i class="fas fa-check-circle"></i> Passing Percentage</label>
+                        <div class="input-with-suffix">
+                            <input type="number" id="passingMarks" min="0" max="100" placeholder="Enter passing percentage">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div> 
+                <form method='post'>
+                <div class="exam-form-window">
+                    <form method="POST" id="createExamForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_title">
+                                <i class="fas fa-book me-2"></i>
+                                Exam Title
+                            </label>
+                            <input type="text" id="id_title" name="title" placeholder="Enter exam title" required>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="id_description">
+                                <i class="fas fa-align-left me-2"></i>
+                                Description
+                            </label>
+                            <textarea id="id_description" name="description" placeholder="Enter exam description" rows="3" required></textarea>
+                        </div>
+                
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="id_duration">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Duration (minutes)
+                                </label>
+                                <input type="number" id="id_duration" name="duration" placeholder="Enter duration" required>
+                            </div>
+                            <div class="form-group half">
+                                <label for="id_total_marks"><i class="fas fa-star"></i> Total Marks</label>
+                                <input type="number" id="id_total_marks" name="total_marks" min="0" placeholder="Enter total marks" required>
+                            </div>
+                            <div class="form-group half">
+                                <label for="id_passing_percentage"><i class="fas fa-check-circle"></i> Passing Percentage</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="id_passing_percentage" name="passing_percentage" min="0" max="100" placeholder="Enter passing percentage" required>
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <button type="submit" class="btn btn-primary">Create Exam</button>
+                    </form>
+                </div>
+            </form>
+
+                <!-- Modified grading scale section -->
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-chart-line me-2"></i>
+                        Grading Scale
+                    </label>
+                    <div class="grade-setup">
+                        <div class="grade-count-input">
+                            <label for="gradeCount">Number of Grade Scales</label>
+                            <div class="input-with-button">
+                                <input type="number" 
+                                       id="gradeCount" 
+                                       min="1" 
+                                       max="10" 
+                                       placeholder="Enter number of grades">
+                                <button onclick="generateGradeFields()" class="generate-btn">
+                                    <i class="fas fa-plus"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div id="gradeScaleContainer" class="grade-scales">
+                            <!-- Grade scale fields will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Type Buttons -->
+            <div class="question-type-buttons">
+                <div class="question-btn-row">
+                    <button class="question-btn" onclick="showTFModal()">
+                        <i class="fas fa-check-circle"></i>
+                        Add True/False Question
+                    </button>
+                </div>
+                <div class="question-btn-row">
+                    <button class="question-btn" onclick="showMCQModal()">
+                        <i class="fas fa-list"></i>
+                        Add Multiple Choice Question
+                    </button>
+                </div>
+                <div class="question-btn-row">
+                    <button class="question-btn" onclick="showFillBlankModal()">
+                        <i class="fas fa-pencil-alt"></i>
+                        Add Fill in the Blank
+                    </button>
+                </div>
+            </div>
+
+            <!-- Randomization Options -->
+            <div class="randomization-section">
+                <h3><i class="fas fa-random me-2"></i>Randomization Options</h3>
+                <div class="randomize-options">
+                    <label class="radio-container">
+                        <input type="radio" name="randomize" value="none">
+                        <span class="radio-label">No Randomization</span>
+                    </label>
+                    
+                    <label class="radio-container">
+                        <input type="radio" name="randomize" value="type">
+                        <span class="radio-label">Randomize by Question Type</span>
+                    </label>
+                    
+                    <label class="radio-container">
+                        <input type="radio" name="randomize" value="choose">
+                        <span class="radio-label">Randomize Choose</span>
+                    </label>
+                    
+                    <label class="radio-container">
+                        <input type="radio" name="randomize" value="manual">
+                        <span class="radio-label">Manual Randomization</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Exam Preview Section in Scrollable Container -->
+            <div class="exam-preview-container">
+                <h3 class="preview-title"><i class="fas fa-eye me-2"></i>Exam Preview</h3>
+                <div class="exam-preview-scroll">
+                    <!-- Question List -->
+                    <div class="question-list" id="questionList">
+                        <!-- Multiple Choice Question -->
+                        <div class="question-card card mb-4" draggable="false" data-question-id="1">
+                            <div class="drag-handle" style="display: none;">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="question-header">
+                                    <h5 class="card-title">Question 1</h5>
+                                    <div class="question-actions">
+                                        <button class="btn btn-link text-primary" onclick="editQuestion(this)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-link text-danger"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <p class="question-text">What is the result of 15 × 4?</p>
+                                <div class="choice-list">
+                                    <div class="choice-item">
+                                        <span class="choice-text">45</span>
+                                        <div class="choice-actions">
+                                            <button class="choice-btn edit" onclick="editChoice(this)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="choice-btn delete" onclick="deleteChoice(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="choice-item">
+                                        <span class="choice-text">50</span>
+                                        <div class="choice-actions">
+                                            <button class="choice-btn edit" onclick="editChoice(this)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="choice-btn delete" onclick="deleteChoice(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="choice-item">
+                                        <span class="choice-text">60</span>
+                                        <div class="choice-actions">
+                                            <button class="choice-btn edit" onclick="editChoice(this)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="choice-btn delete" onclick="deleteChoice(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="choice-item">
+                                        <span class="choice-text">75</span>
+                                        <div class="choice-actions">
+                                            <button class="choice-btn edit" onclick="editChoice(this)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="choice-btn delete" onclick="deleteChoice(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- True/False Question -->
+                        <div class="question-card card mb-4" draggable="false" data-question-id="2">
+                            <div class="drag-handle" style="display: none;">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="question-header">
+                                    <h5 class="card-title">Question 2</h5>
+                                    <div class="question-actions">
+                                        <button class="btn btn-link text-primary"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-link text-danger"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <p>The sum of angles in a triangle is 180 degrees.</p>
+                                <div class="choice-list">
+                                    <div class="choice-item">
+                                        <span class="choice-text">True</span>
+                                    </div>
+                                    <div class="choice-item">
+                                        <span class="choice-text">False</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fill in the Blank -->
+                        <div class="question-card card mb-4" draggable="false" data-question-id="3">
+                            <div class="drag-handle" style="display: none;">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="question-header">
+                                    <h5 class="card-title">Question 3</h5>
+                                    <div class="question-actions">
+                                        <button class="btn btn-link text-primary"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-link text-danger"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <p>The square root of 144 is <span class="blank-input" contenteditable="true">____</span>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this after the randomization section -->
+            <div class="show-answers-section">
+                <div class="show-answers-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="showCorrectAnswers">
+                        <span class="toggle-text">Show Correct Answers</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Save and Finish Button Container -->
+            <div class="save-finish-container">
+                <button class="btn btn-secondary save-finish-btn">
+                    <i class="fas fa-save"></i>
+                    <span>Save</span>
+                </button>
+                <button class="btn btn-primary save-finish-btn">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Done</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add True/False Modal HTML -->
+    <div class="question-modal" id="tfQuestionModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle me-2"></i>Add True/False Question</h3>
+                <button class="close-modal" onclick="closeTFModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea id="tfQuestionText" rows="3" placeholder="Enter your true/false question here..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Question Location</label>
+                        <input type="number" id="tfLocation" min="1" placeholder="Enter question position">
+                    </div>
+                    <div class="form-group half">
+                        <label><i class="fas fa-star me-1"></i>Marks</label>
+                        <input type="number" id="tfMarks" min="0" step="0.5" placeholder="Enter marks for this question">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correct Answer</label>
+                    <div class="radio-container">
+                        <label>
+                            <input type="radio" name="tfCorrectAnswer" value="true" checked> True
+                        </label>
+                        <label>
+                            <input type="radio" name="tfCorrectAnswer" value="false"> False
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeTFModal()">Cancel</button>
+                <button class="modal-btn add" onclick="addTFQuestion()">Add Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update profile container content
+            if (!document.querySelector('.profile-container')) {
+                const mainContent = document.querySelector('.main-content');
+                const profileContainer = document.createElement('div');
+                profileContainer.className = 'profile-container';
+                profileContainer.style.display = 'none';
+                profileContainer.innerHTML = `
+                    <div class="section-header">
+                        <h2><i class="fas fa-user me-2"></i>Profile</h2>
+                    </div>
+                    <div class="profile-content">
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-image-container">
+                                    <img src="{{profile.profile_picture.url}}" alt="Profile Picture" class="large-profile-pic">
+                                    <button class="change-photo-btn">
+                                        <i class="fas fa-camera"></i>
+                                        Change Photo
+                                    </button>
+                                </div>
+                                <div class="profile-info">
+                                    <h3>{{profile.user.username}}</h3>
+                                    <p class="email">{{profile.user.email}}</p>
+                                </div>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-section">
+                                    <h4>Personal Information</h4>
+                                    <div class="detail-grid">
+                                        <div class="detail-item">
+                                            <label>{{prfoile.user.first_name}}</label>
+                                            <input type="text" value="Teacher Name">
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>{{profile.user.email}}</label>
+                                            <input type="email" value="teacher@school.com">
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Employee ID</label>
+                                            <input type="text" value="TCH123456">
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>Phone Number</label>
+                                            <input type="tel" value="+1 234 567 8900">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="save-profile-btn" onclick="saveProfile()">
+                                    <i class="fas fa-save"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                mainContent.appendChild(profileContainer);
+            }
+
+            // Add click event listeners to nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const text = this.textContent.trim();
+                    switch(text) {
+                        case 'Profile':
+                            showProfile();
+                            break;
+                        case 'Recent Activities':
+                            showActivities();
+                            break;
+                        case 'Submissions':
+                            showSubmissions();
+                            break;
+                        case 'Exam Management':
+                            showExamManagement();
+                            break;
+                        case 'Create New Exam':
+                            showCreateExam();
+                            break;
+                    }
+                });
+            });
+
+            // Show submissions by default
+            showSubmissions();
+            const submissionsNav = Array.from(navItems)
+                .find(item => item.textContent.trim() === 'Submissions');
+            if (submissionsNav) {
+                submissionsNav.classList.add('active');
+            }
+        });
+
+        // Update showProfile function
+        function showProfile() {
+            hideAllContent();
+            const profileContainer = document.querySelector('.profile-container');
+            if (profileContainer) {
+                profileContainer.style.display = 'block';
+            }
+        }
+
+        // Update hideAllContent function to include all containers
+        function hideAllContent() {
+            const containers = [
+                '.activities-container',
+                '.submissions-container',
+                '.exam-management-container',
+                '.create-exam-container',
+                '.profile-container'
+            ];
+            
+            containers.forEach(container => {
+                const element = document.querySelector(container);
+                if (element) {
+                    element.style.display = 'none';
+                }
+            });
+        }
+
+        function showActivities() {
+            hideAllContent();
+            const activitiesContainer = document.querySelector('.activities-container');
+            if (activitiesContainer) {
+                activitiesContainer.style.display = 'flex';
+            }
+        }
+
+        function showSubmissions() {
+            hideAllContent();
+            const submissionsContainer = document.querySelector('.submissions-container');
+            if (submissionsContainer) {
+                submissionsContainer.style.display = 'flex';
+            }
+        }
+
+        function showExamManagement() {
+            hideAllContent();
+            const examManagementContainer = document.querySelector('.exam-management-container');
+            if (examManagementContainer) {
+                examManagementContainer.style.display = 'flex';
+            }
+        }
+
+        function showCreateExam() {
+            hideAllContent();
+            const createExamContainer = document.querySelector('.create-exam-container');
+            if (createExamContainer) {
+                createExamContainer.style.display = 'block';
+            }
+        }
+
+        document.querySelectorAll('input[name="randomize"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const questionCards = document.querySelectorAll('.question-card');
+                const dragHandles = document.querySelectorAll('.drag-handle');
+                
+                if (this.value === 'manual') {
+                    questionCards.forEach((card, index) => {
+                        card.setAttribute('draggable', 'true');
+                        card.classList.add('draggable');
+                        
+                        if (!card.querySelector('.position-input')) {
+                            const questionHeader = card.querySelector('.question-header');
+                            const positionInput = document.createElement('input');
+                            positionInput.type = 'number';
+                            positionInput.min = '1';
+                            positionInput.max = questionCards.length;
+                            positionInput.value = index + 1;
+                            positionInput.className = 'position-input';
+                            positionInput.style.width = '60px';
+                            positionInput.style.marginRight = '10px';
+                            positionInput.placeholder = 'Pos';
+                            
+                            positionInput.addEventListener('keyup', function(e) {
+                                if (e.key === 'Enter') {
+                                    const newPosition = parseInt(this.value) - 1;
+                                    const totalQuestions = questionCards.length;
+                                    
+                                    if (newPosition >= 0 && newPosition < totalQuestions) {
+                                        moveQuestionToPosition(card, newPosition);
+                                    } else {
+                                        this.value = Array.from(card.parentNode.children).indexOf(card) + 1;
+                                        alert(`Please enter a position between 1 and ${totalQuestions}`);
+                                    }
+                                }
+                            });
+                            
+                            questionHeader.insertBefore(positionInput, questionHeader.firstChild);
+                        }
+                    });
+                    dragHandles.forEach(handle => {
+                        handle.style.display = 'block';
+                    });
+                    initDragAndDrop();
+                } else {
+                    questionCards.forEach(card => {
+                        card.setAttribute('draggable', 'false');
+                        card.classList.remove('draggable');
+                        const positionInput = card.querySelector('.position-input');
+                        if (positionInput) {
+                            positionInput.remove();
+                        }
+                    });
+                    dragHandles.forEach(handle => {
+                        handle.style.display = 'none';
+                    });
+                    removeDragAndDrop();
+                }
+            });
+        });
+
+        function moveQuestionToPosition(questionCard, newPosition) {
+            const questionList = document.getElementById('questionList');
+            const questions = Array.from(questionList.children);
+            const currentPosition = questions.indexOf(questionCard);
+            
+            if (currentPosition === newPosition) return;
+            
+            const targetQuestion = questions[newPosition];
+            
+            if (currentPosition < newPosition) {
+                if (targetQuestion.nextSibling) {
+                    questionList.insertBefore(questionCard, targetQuestion.nextSibling);
+                } else {
+                    questionList.appendChild(questionCard);
+                }
+            } else {
+                questionList.insertBefore(questionCard, targetQuestion);
+            }
+            
+            updateQuestionNumbers();
+        }
+
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-card');
+            questions.forEach((question, index) => {
+                const titleElement = question.querySelector('.card-title');
+                titleElement.textContent = `Question ${index + 1}`;
+                
+                const positionInput = question.querySelector('.position-input');
+                if (positionInput) {
+                    positionInput.value = index + 1;
+                }
+            });
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .position-input {
+                padding: 2px 5px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+                text-align: center;
+                transition: border-color 0.3s;
+            }
+            
+            .position-input:focus {
+                outline: none;
+                border-color: #4a90e2;
+            }
+            
+            .position-input::-webkit-inner-spin-button,
+            .position-input::-webkit-outer-spin-button {
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+
+        let draggedItem = null;
+        let autoScrollInterval = null;
+        const SCROLL_SPEED = 25;
+        const SCROLL_ZONE = 100;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedItem = null;
+            
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+            
+            updateQuestionNumbers();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const bounding = this.getBoundingClientRect();
+            const offset = bounding.y + (bounding.height / 2);
+            
+            if (e.clientY - offset > 0) {
+                this.style.borderBottom = '2px solid #4a90e2';
+                this.style.borderTop = 'none';
+            } else {
+                this.style.borderTop = '2px solid #4a90e2';
+                this.style.borderBottom = 'none';
+            }
+
+            const container = document.querySelector('.exam-preview-scroll');
+            const containerRect = container.getBoundingClientRect();
+            
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+
+            let scrollSpeed = SCROLL_SPEED;
+            
+            if (e.clientY < containerRect.top) {
+                scrollSpeed = Math.min(SCROLL_SPEED * 5,
+                                     SCROLL_SPEED * (1 + Math.abs(e.clientY - containerRect.top) / 50));
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop -= scrollSpeed;
+                }, 10);
+            }
+            else if (e.clientY > containerRect.bottom) {
+                scrollSpeed = Math.min(SCROLL_SPEED * 5,
+                                     SCROLL_SPEED * (1 + Math.abs(e.clientY - containerRect.bottom) / 50));
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop += scrollSpeed;
+                }, 10);
+            }
+            else if (e.clientY < containerRect.top + SCROLL_ZONE) {
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop -= scrollSpeed;
+                }, 10);
+            }
+            else if (e.clientY > containerRect.bottom - SCROLL_ZONE) {
+                autoScrollInterval = setInterval(() => {
+                    container.scrollTop += scrollSpeed;
+                }, 10);
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.style.borderTop = 'none';
+            this.style.borderBottom = 'none';
+
+            if (draggedItem !== this) {
+                const allItems = [...this.parentNode.children];
+                const draggedIndex = allItems.indexOf(draggedItem);
+                const droppedIndex = allItems.indexOf(this);
+
+                if (draggedIndex < droppedIndex) {
+                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedItem, this);
+                }
+            }
+        }
+
+        function handleDragLeave(e) {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+
+        function initDragAndDrop() {
+            const questionList = document.getElementById('questionList');
+            const questions = questionList.querySelectorAll('.question-card');
+            const container = document.querySelector('.exam-preview-scroll');
+
+            questions.forEach(question => {
+                question.addEventListener('dragstart', handleDragStart);
+                question.addEventListener('dragend', handleDragEnd);
+                question.addEventListener('dragover', handleDragOver);
+                question.addEventListener('drop', handleDrop);
+            });
+
+            container.addEventListener('dragleave', handleDragLeave);
+        }
+
+        function removeDragAndDrop() {
+            const questions = document.querySelectorAll('.question-card');
+            const container = document.querySelector('.exam-preview-scroll');
+            
+            questions.forEach(question => {
+                question.removeEventListener('dragstart', handleDragStart);
+                question.removeEventListener('dragend', handleDragEnd);
+                question.removeEventListener('dragover', handleDragOver);
+                question.removeEventListener('drop', handleDrop);
+            });
+
+            container.removeEventListener('dragleave', handleDragLeave);
+            
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+
+        // Add saveProfile function
+        function saveProfile() {
+            // Get all input values
+            const inputs = document.querySelectorAll('.profile-details input');
+            const values = {};
+            
+            inputs.forEach(input => {
+                const label = input.previousElementSibling.textContent;
+                values[label] = input.value;
+            });
+
+            // Update profile info section
+            const profileInfo = document.querySelector('.profile-info');
+            profileInfo.querySelector('h3').textContent = values['Full Name'];
+            profileInfo.querySelector('.department').textContent = values['Department'];
+            profileInfo.querySelector('.email').textContent = values['Email'];
+
+            // Show success message
+            showSaveSuccess();
+        }
+
+        // Add success message function
+        function showSaveSuccess() {
+            const successMessage = document.createElement('div');
+            successMessage.className = 'save-success-message';
+            successMessage.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                Profile updated successfully
+            `;
+            
+            document.querySelector('.profile-card').appendChild(successMessage);
+            
+            // Remove message after 3 seconds
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3000);
+        }
+
+        // Add multiple choice modal HTML
+        document.addEventListener('DOMContentLoaded', function() {
+            const mcqModalHTML = `
+                <div class="question-modal" id="mcqQuestionModal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-list me-2"></i>Add Multiple Choice Question</h3>
+                            <button class="close-modal" onclick="closeMCQModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Question Text</label>
+                                <textarea id="mcqQuestionText" rows="3" placeholder="Enter your question here..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Number of Choices</label>
+                                <div class="choice-count-container">
+                                    <input type="number" id="choiceCount" min="2" max="6" value="4" placeholder="Enter number of choices">
+                                    <button class="generate-choices-btn" onclick="generateChoiceFields()">
+                                        <i class="fas fa-plus"></i> Generate Choice Fields
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="choiceFieldsContainer" class="choice-fields-container">
+                                <!-- Choice fields will be generated here -->
+                            </div>
+                            <div class="form-group">
+                                <label>Question Location</label>
+                                <input type="number" id="mcqLocation" min="1" placeholder="Enter question position">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-star me-1"></i>Marks</label>
+                                <input type="number" id="mcqMarks" min="0" step="0.5" placeholder="Enter marks for this question">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-btn cancel" onclick="closeMCQModal()">Cancel</button>
+                            <button class="modal-btn add" onclick="addMCQuestion()">Add Question</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', mcqModalHTML);
+
+            // Add event listener to the Multiple Choice button
+            const mcqButton = document.querySelectorAll('.question-btn')[1]; // Second button
+            mcqButton.addEventListener('click', showMCQModal);
+        });
+
+        // Add MCQ modal functions
+        function showMCQModal() {
+            const modal = document.getElementById('mcqQuestionModal');
+            modal.style.display = 'flex';
+            // Reset form
+            document.getElementById('mcqQuestionText').value = '';
+            document.getElementById('choiceCount').value = '4';
+            document.getElementById('mcqLocation').value = '';
+            document.getElementById('choiceFieldsContainer').innerHTML = '';
+            document.getElementById('mcqMarks').value = '';
+        }
+
+        function closeMCQModal() {
+            const modal = document.getElementById('mcqQuestionModal');
+            modal.style.display = 'none';
+        }
+
+        function generateChoiceFields() {
+            const count = parseInt(document.getElementById('choiceCount').value);
+            const container = document.getElementById('choiceFieldsContainer');
+            
+            if (count < 2 || count > 6) {
+                alert('Please enter a number between 2 and 6');
+                return;
+            }
+
+            container.innerHTML = ''; // Clear existing fields
+            
+            for (let i = 0; i < count; i++) {
+                const choiceGroup = document.createElement('div');
+                choiceGroup.className = 'choice-group';
+                
+                choiceGroup.innerHTML = `
+                    <div class="choice-input-group">
+                        <input type="text" 
+                               id="choice${i}" 
+                               class="choice-input" 
+                               placeholder="Enter choice ${i + 1}">
+                        <label class="correct-choice-label">
+                            <input type="radio" 
+                                   name="correctChoice" 
+                                   value="${i}"
+                                   ${i === 0 ? 'checked' : ''}>
+                            Correct Answer
+                        </label>
+                    </div>
+                `;
+                
+                container.appendChild(choiceGroup);
+            }
+        }
+
+        function addMCQuestion() {
+            const questionText = document.getElementById('mcqQuestionText').value;
+            const location = document.getElementById('mcqLocation').value;
+            const marks = document.getElementById('mcqMarks').value;
+            const choices = Array.from(document.querySelectorAll('.choice-input')).map(input => input.value);
+            const correctChoice = document.querySelector('input[name="correctChoice"]:checked').value;
+
+            if (!questionText || !location || !marks || choices.some(choice => !choice)) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const questionList = document.getElementById('questionList');
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question-card card mb-4';
+            newQuestion.setAttribute('draggable', 'false');
+            newQuestion.setAttribute('data-question-id', '1');
+
+            newQuestion.innerHTML = `
+                <div class="drag-handle" style="display: none;">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="card-body">
+                    <div class="question-header">
+                        <div class="question-info">
+                            <h5 class="card-title">Question ${location}</h5>
+                            <span class="question-marks">${marks} marks</span>
+                        </div>
+                        <div class="question-actions">
+                            <button class="btn btn-link text-primary" onclick="editQuestion(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-link text-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="question-text">${questionText}</p>
+                    <div class="choice-list">
+                        ${choices.map((choice, index) => `
+                            <div class="choice-item">
+                                <span class="choice-text">${choice}</span>
+                                <div class="choice-actions">
+                                    <button class="choice-btn edit" onclick="editChoice(this)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="choice-btn delete" onclick="deleteChoice(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Insert at specified location
+            const questions = questionList.children;
+            if (location > questions.length) {
+                questionList.appendChild(newQuestion);
+            } else {
+                questionList.insertBefore(newQuestion, questions[location - 1]);
+            }
+
+            // Update question numbers
+            updateQuestionNumbers();
+
+            // Close modal
+            closeMCQModal();
+        }
+
+        // Add additional styles for MCQ modal
+        const mcqStyles = document.createElement('style');
+        mcqStyles.textContent = `
+            .choice-count-container {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .generate-choices-btn {
+                padding: 10px 15px;
+                background: #6c757d;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .generate-choices-btn:hover {
+                background: #5a6268;
+            }
+
+            .choice-fields-container {
+                margin: 20px 0;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .choice-group {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+            }
+
+            .choice-input-group {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .choice-input {
+                flex: 1;
+                padding: 10px;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+            .correct-choice-label {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                color: #495057;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            #choiceCount {
+                width: 100px;
+            }
+        `;
+        document.head.appendChild(mcqStyles);
+
+        function showFillBlankModal() {
+            const modal = document.createElement('div');
+            modal.className = 'question-modal';
+            modal.id = 'fillBlankModal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-pencil-alt me-2"></i>Add Fill in the Blank Question</h3>
+                        <button class="close-modal" onclick="closeFillBlankModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Question Text</label>
+                            <textarea id="fillBlankText" rows="3" placeholder="Enter your question here... Use [blank] to indicate blank spaces"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Possible Answers</label>
+                            <div class="answers-count-container">
+                                <input type="number" id="answersCount" min="1" max="10" value="1" placeholder="Enter number of possible answers">
+                                <button class="generate-answers-btn" onclick="generateAnswerFields()">
+                                    <i class="fas fa-plus"></i> Generate Answer Fields
+                                </button>
+                            </div>
+                        </div>
+                        <div id="answerFieldsContainer" class="answer-fields-container">
+                            <!-- Answer fields will be generated here -->
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Question Location</label>
+                                <input type="number" id="fillBlankLocation" min="1" placeholder="Enter question position">
+                            </div>
+                            <div class="form-group half">
+                                <label><i class="fas fa-star me-1"></i>Marks</label>
+                                <input type="number" id="fillBlankMarks" min="0" step="0.5" placeholder="Enter marks for this question">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn cancel" onclick="closeFillBlankModal()">Cancel</button>
+                        <button class="modal-btn add" onclick="addFillBlankQuestion()">Add Question</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+
+            // Add the new styles dynamically
+            const style = document.createElement('style');
+            style.textContent = `
+                .answers-count-container {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+
+                .generate-answers-btn {
+                    padding: 8px 15px;
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                }
+
+                .generate-answers-btn:hover {
+                    background: #5a6268;
+                }
+
+                .answer-fields-container {
+                    margin: 20px 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .answer-group {
+                    background: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border: 1px solid #dee2e6;
+                }
+
+                .answer-input {
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #dee2e6;
+                    border-radius: 6px;
+                    font-size: 14px;
+                }
+
+                #answersCount {
+                    width: 100px;
+                    padding: 8px;
+                    border: 1px solid #dee2e6;
+                    border-radius: 6px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function generateAnswerFields() {
+            const count = parseInt(document.getElementById('answersCount').value);
+            const container = document.getElementById('answerFieldsContainer');
+            
+            if (count < 1 || count > 10) {
+                alert('Please enter a number between 1 and 10');
+                return;
+            }
+
+            container.innerHTML = ''; // Clear existing fields
+            
+            for (let i = 0; i < count; i++) {
+                const answerGroup = document.createElement('div');
+                answerGroup.className = 'answer-group';
+                
+                answerGroup.innerHTML = `
+                    <input type="text" 
+                           id="answer${i}" 
+                           class="answer-input" 
+                           placeholder="Enter possible answer ${i + 1}">
+                `;
+                
+                container.appendChild(answerGroup);
+            }
+        }
+
+        function addFillBlankQuestion() {
+            const questionText = document.getElementById('fillBlankText').value;
+            const location = document.getElementById('fillBlankLocation').value;
+            const answers = Array.from(document.querySelectorAll('.answer-input')).map(input => input.value);
+
+            if (!questionText || !location || answers.some(answer => !answer)) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Log the question data
+            console.log({
+                type: 'fill-blank',
+                question: questionText,
+                possibleAnswers: answers,
+                location: parseInt(location)
+            });
+
+            closeFillBlankModal();
+        }
+
+        function closeFillBlankModal() {
+            const modal = document.getElementById('fillBlankModal');
+            modal.remove();
+        }
+
+        // Add these new functions to your JavaScript
+
+        function editChoice(button) {
+            const choiceItem = button.closest('.choice-item');
+            const choiceText = choiceItem.querySelector('.choice-text');
+            const editButton = button;
+            
+            // If we're already editing, return
+            if (choiceText.contentEditable === 'true') {
+                return;
+            }
+            
+            // Hide edit button
+            editButton.style.display = 'none';
+            
+            // Make text editable
+            choiceText.contentEditable = 'true';
+            choiceText.classList.add('editing');
+            choiceText.focus();
+            
+            // Create save button if it doesn't exist
+            let saveButton = choiceItem.querySelector('.save-btn');
+            if (!saveButton) {
+                saveButton = document.createElement('button');
+                saveButton.className = 'save-btn';
+                saveButton.innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Insert save button before the choice-actions div
+                const choiceActions = choiceItem.querySelector('.choice-actions');
+                choiceActions.insertBefore(saveButton, choiceActions.firstChild);
+            }
+            
+            // Show save button
+            saveButton.classList.add('visible');
+            
+            // Save button click handler
+            saveButton.onclick = function() {
+                // Make text non-editable
+                choiceText.contentEditable = 'false';
+                choiceText.classList.remove('editing');
+                
+                // Hide save button
+                saveButton.classList.remove('visible');
+                
+                // Show edit button
+                editButton.style.display = 'inline-block';
+                
+                // Trim any extra whitespace
+                choiceText.textContent = choiceText.textContent.trim();
+            };
+            
+            // Handle Enter key press
+            choiceText.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveButton.click();
+                }
+            };
+        }
+
+        function deleteChoice(button) {
+            const choiceItem = button.closest('.choice-item');
+            const choiceList = choiceItem.parentElement;
+            
+            if (confirm('Are you sure you want to delete this choice?')) {
+                choiceItem.remove();
+                
+                // If there are less than 2 choices remaining, you might want to show a warning
+                if (choiceList.children.length < 2) {
+                    alert('Warning: A multiple choice question should have at least 2 choices.');
+                }
+            }
+        }
+
+        // Add this new function for editing question text
+        function editQuestion(button) {
+            const questionCard = button.closest('.question-card');
+            const questionText = questionCard.querySelector('p');
+            const editButton = button;
+            
+            // If we're already editing, return
+            if (questionText.contentEditable === 'true') {
+                return;
+            }
+            
+            // Hide edit button
+            editButton.style.display = 'none';
+            
+            // Make text editable
+            questionText.contentEditable = 'true';
+            questionText.classList.add('editing');
+            questionText.focus();
+            
+            // Create save button if it doesn't exist
+            let saveButton = questionCard.querySelector('.question-save-btn');
+            if (!saveButton) {
+                saveButton = document.createElement('button');
+                saveButton.className = 'question-save-btn';
+                saveButton.innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Insert save button in the question actions div
+                const questionActions = questionCard.querySelector('.question-actions');
+                questionActions.insertBefore(saveButton, questionActions.firstChild);
+            }
+            
+            // Show save button
+            saveButton.classList.add('visible');
+            
+            // Save button click handler
+            saveButton.onclick = function() {
+                // Make text non-editable
+                questionText.contentEditable = 'false';
+                questionText.classList.remove('editing');
+                
+                // Hide save button
+                saveButton.classList.remove('visible');
+                
+                // Show edit button
+                editButton.style.display = 'inline-block';
+                
+                // Trim any extra whitespace
+                questionText.textContent = questionText.textContent.trim();
+            };
+            
+            // Handle Enter key press
+            questionText.onkeydown = function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    saveButton.click();
+                }
+            };
+        }
+
+        // Update the question cards to use the new edit functionality
+        document.querySelectorAll('.question-card').forEach(card => {
+            const editButton = card.querySelector('.question-actions .btn-link.text-primary');
+            editButton.onclick = function() {
+                editQuestion(this);
+            };
+        });
+
+        // Add these functions to your JavaScript
+        function showTFModal() {
+            const modal = document.getElementById('tfQuestionModal');
+            modal.style.display = 'flex';
+            // Reset form
+            document.getElementById('tfQuestionText').value = '';
+            document.getElementById('tfLocation').value = '';
+            document.getElementById('tfMarks').value = '';
+            document.querySelector('input[name="tfCorrectAnswer"][value="true"]').checked = true;
+        }
+
+        function closeTFModal() {
+            const modal = document.getElementById('tfQuestionModal');
+            modal.style.display = 'none';
+        }
+
+        function addTFQuestion() {
+            const questionText = document.getElementById('tfQuestionText').value;
+            const location = document.getElementById('tfLocation').value;
+            const marks = document.getElementById('tfMarks').value;
+            const correctAnswer = document.querySelector('input[name="tfCorrectAnswer"]:checked').value;
+
+            if (!questionText || !location || !marks) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const questionList = document.getElementById('questionList');
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question-card card mb-4';
+            newQuestion.setAttribute('draggable', 'false');
+            newQuestion.setAttribute('data-question-id', '2');
+
+            newQuestion.innerHTML = `
+                <div class="drag-handle" style="display: none;">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="card-body">
+                    <div class="question-header">
+                        <div class="question-info">
+                            <h5 class="card-title">Question ${location}</h5>
+                            <span class="question-marks">${marks} marks</span>
+                        </div>
+                        <div class="question-actions">
+                            <button class="btn btn-link text-primary" onclick="editQuestion(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-link text-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="question-text">${questionText}</p>
+                    <div class="choice-list">
+                        <div class="choice-item">
+                            <span class="choice-text">True</span>
+                        </div>
+                        <div class="choice-item">
+                            <span class="choice-text">False</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Insert at specified location
+            const questions = questionList.children;
+            if (location > questions.length) {
+                questionList.appendChild(newQuestion);
+            } else {
+                questionList.insertBefore(newQuestion, questions[location - 1]);
+            }
+
+            // Update question numbers
+            updateQuestionNumbers();
+
+            // Close modal
+            closeTFModal();
+        }
+
+        // Add validation for passing percentage
+        document.getElementById('passingMarks').addEventListener('input', function() {
+            const passingPercentage = parseFloat(this.value) || 0;
+            const validationMessage = this.parentElement.querySelector('.validation-message') 
+                || document.createElement('div');
+            
+            validationMessage.className = 'validation-message';
+            
+            if (passingPercentage > 100) {
+                this.classList.add('invalid');
+                validationMessage.textContent = 'Passing percentage cannot exceed 100%';
+                validationMessage.classList.add('show');
+                if (!this.parentElement.parentElement.contains(validationMessage)) {
+                    this.parentElement.parentElement.appendChild(validationMessage);
+                }
+            } else if (passingPercentage < 0) {
+                this.classList.add('invalid');
+                validationMessage.textContent = 'Passing percentage cannot be negative';
+                validationMessage.classList.add('show');
+                if (!this.parentElement.parentElement.contains(validationMessage)) {
+                    this.parentElement.parentElement.appendChild(validationMessage);
+                }
+            } else {
+                this.classList.remove('invalid');
+                validationMessage.classList.remove('show');
+            }
+        });
+
+        // Helper function to calculate passing marks
+        function calculatePassingMarks() {
+            const totalMarks = parseFloat(document.getElementById('totalMarks').value) || 0;
+            const passingPercentage = parseFloat(document.getElementById('passingMarks').value) || 0;
+            return (passingPercentage / 100) * totalMarks;
+        }
+
+        // Update total marks validation to check passing marks
+        document.getElementById('totalMarks').addEventListener('input', function() {
+            const passingMarksInput = document.getElementById('passingMarks');
+            const totalMarks = parseFloat(this.value) || 0;
+            const passingMarks = parseFloat(passingMarksInput.value) || 0;
+            
+            if (passingMarks > totalMarks) {
+                passingMarksInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Generate grade scale fields
+        function generateGradeFields() {
+            const gradeCount = parseInt(document.getElementById('gradeCount').value);
+            const gradeScaleContainer = document.getElementById('gradeScaleContainer');
+            gradeScaleContainer.innerHTML = '';
+            
+            if (gradeCount < 1 || gradeCount > 10) {
+                alert('Please enter a number between 1 and 10');
+                return;
+            }
+            
+            for (let i = 0; i < gradeCount; i++) {
+                const gradeScaleItem = document.createElement('div');
+                gradeScaleItem.className = 'grade-scale-item';
+                gradeScaleItem.innerHTML = `
+                    <div class="grade-name-input">
+                        <div class="grade-range-label">Grade Name</div>
+                        <input type="text" 
+                               id="gradeName${i}" 
+                               placeholder="e.g., A, B+, C"
+                               value="${getDefaultGradeName(i, gradeCount)}">
+                    </div>
+                    <div class="grade-range">
+                        <div class="grade-range-input">
+                            <div class="grade-range-label">Minimum Score</div>
+                            <input type="number" 
+                                   id="gradeMin${i}" 
+                                   min="0" 
+                                   max="100" 
+                                   placeholder="Min"
+                                   value="${getDefaultMinScore(i, gradeCount)}">
+                        </div>
+                        <span class="grade-range-separator">-</span>
+                        <div class="grade-range-input">
+                            <div class="grade-range-label">Maximum Score</div>
+                            <input type="number" 
+                                   id="gradeMax${i}" 
+                                   min="0" 
+                                   max="100" 
+                                   placeholder="Max"
+                                   value="${getDefaultMaxScore(i, gradeCount)}">
+                        </div>
+                    </div>
+                `;
+                gradeScaleContainer.appendChild(gradeScaleItem);
+                
+                // Add event listeners for validation
+                addGradeValidation(i);
+            }
+        }
+
+        // Helper function to get default grade names
+        function getDefaultGradeName(index, totalGrades) {
+            const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
+            return index < grades.length ? grades[index] : `Grade ${index + 1}`;
+        }
+
+        // Helper function to get default minimum score
+        function getDefaultMinScore(index, totalGrades) {
+            if (totalGrades <= 1) return 0;
+            const increment = 100 / totalGrades;
+            return Math.round(100 - ((index + 1) * increment));
+        }
+
+        // Helper function to get default maximum score
+        function getDefaultMaxScore(index, totalGrades) {
+            if (totalGrades <= 1) return 100;
+            const increment = 100 / totalGrades;
+            return Math.round(100 - (index * increment));
+        }
+
+        // Add validation for grade ranges
+        function addGradeValidation(index) {
+            const minInput = document.getElementById(`gradeMin${index}`);
+            const maxInput = document.getElementById(`gradeMax${index}`);
+
+            function validateGradeRange() {
+                const min = parseInt(minInput.value) || 0;
+                const max = parseInt(maxInput.value) || 100;
+
+                if (min > max) {
+                    alert('Minimum score cannot be greater than maximum score');
+                    minInput.value = max;
+                }
+
+                if (max > 100) {
+                    alert('Maximum score cannot exceed 100');
+                    maxInput.value = 100;
+                }
+
+                if (min < 0) {
+                    alert('Minimum score cannot be less than 0');
+                    minInput.value = 0;
+                }
+            }
+
+            minInput.addEventListener('change', validateGradeRange);
+            maxInput.addEventListener('change', validateGradeRange);
+        }
+
+        // Mock exam data
+        const examData = {
+            1: {
+                title: "Mathematics Final Exam",
+                subject: "Mathematics",
+                creationDate: "1 Mar 2024",
+                date: "15 Mar 2024",
+                duration: "2 hours",
+                status: "Upcoming",
+                totalQuestions: 50,
+                totalMarks: 100,
+                passingMark: "40%",
+                description: "This comprehensive final examination covers all major topics studied throughout the semester including Algebra, Calculus, and Trigonometry. Students will be tested on their problem-solving abilities, theoretical understanding, and practical applications of mathematical concepts.",
+                grades: [
+                    { grade: "A", range: "85-100", description: "Excellent" },
+                    { grade: "B", range: "70-84", description: "Very Good" },
+                    { grade: "C", range: "55-69", description: "Good" },
+                    { grade: "D", range: "40-54", description: "Pass" },
+                    { grade: "F", range: "0-39", description: "Fail" }
+                ]
+            },
+            2: {
+                title: "Physics Mid-Term",
+                subject: "Physics",
+                creationDate: "25 Feb 2024",
+                date: "10 Mar 2024",
+                duration: "1.5 hours",
+                status: "Completed",
+                totalQuestions: 30,
+                totalMarks: 60,
+                passingMark: "50%",
+                description: "The Physics mid-term examination focuses on Classical Mechanics and Thermodynamics. Students will be evaluated on their understanding of Newton's Laws, Energy Conservation, Momentum, and Basic Thermodynamic Principles.",
+                grades: [
+                    { grade: "A", range: "90-100", description: "Outstanding" },
+                    { grade: "B", range: "75-89", description: "Above Average" },
+                    { grade: "C", range: "60-74", description: "Average" },
+                    { grade: "D", range: "50-59", description: "Pass" },
+                    { grade: "F", range: "0-49", description: "Fail" }
+                ]
+            }
+        };
+
+        // Add this variable to track current exam
+        let currentExamId = null;
+
+        // Update showExamDescription function
+        function showExamDescription(examId) {
+            currentExamId = examId;
+            const exam = examData[examId];
+            if (!exam) return;
+
+            // Show the main back button
+            document.getElementById('backToExamListBtn').style.display = 'block';
+            
+            // Hide table view and show description view
+            document.getElementById('examTableView').style.display = 'none';
+            document.getElementById('examDescriptionView').style.display = 'block';
+            
+            // Hide submissions view and show description card
+            document.getElementById('examSubmissionsView').style.display = 'none';
+            document.getElementById('examDescriptionCard').style.display = 'block';
+
+            // Update all exam information
+            document.getElementById('examTitle').textContent = exam.title;
+            document.getElementById('examCreationDate').textContent = exam.creationDate;
+            document.getElementById('examDuration').textContent = exam.duration;
+            document.getElementById('examTotalQuestions').textContent = exam.totalQuestions;
+            document.getElementById('examTotalMarks').textContent = exam.totalMarks;
+            document.getElementById('examPassingMark').textContent = exam.passingMark;
+            document.getElementById('examStatus').textContent = exam.status;
+            document.getElementById('examDescription').textContent = exam.description;
+
+            // Populate grade table
+            const gradeTableBody = document.getElementById('gradeTableBody');
+            gradeTableBody.innerHTML = exam.grades.map(grade => `
+                <tr>
+                    <td>${grade.grade}</td>
+                    <td>${grade.range}%</td>
+                    <td>${grade.description}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showExamTable() {
+            // Hide description view and show table view
+            document.getElementById('examDescriptionView').style.display = 'none';
+            document.getElementById('examTableView').style.display = 'block';
+        }
+
+        function editExistingExam() {
+            // Get the current exam data
+            const examTitle = document.getElementById('examTitle').textContent;
+            const exam = Object.values(examData).find(e => e.title === examTitle);
+            
+            if (!exam) return;
+
+            // Switch to Create New Exam tab
+            const createExamNav = Array.from(document.querySelectorAll('.nav-item'))
+                .find(item => item.textContent.trim() === 'Create New Exam');
+            if (createExamNav) {
+                createExamNav.click();
+            }
+
+            // Populate the form with existing exam data
+            setTimeout(() => {
+                // Basic exam details
+                document.getElementById('examTitle').value = exam.title;
+                document.getElementById('examDescription').value = exam.description;
+                document.getElementById('examDuration').value = parseInt(exam.duration);
+                document.getElementById('totalMarks').value = exam.totalMarks;
+                document.getElementById('passingMarks').value = parseInt(exam.passingMark);
+
+                // Generate grade fields
+                document.getElementById('gradeCount').value = exam.grades.length;
+                generateGradeFields();
+
+                // Populate grade fields
+                exam.grades.forEach((grade, index) => {
+                    document.getElementById(`gradeName${index}`).value = grade.grade;
+                    const [min, max] = grade.range.split('-');
+                    document.getElementById(`gradeMin${index}`).value = min;
+                    document.getElementById(`gradeMax${index}`).value = max;
+                });
+            }, 100); // Small delay to ensure the form is rendered
+        }
+
+        // Add new function to show submissions
+        function showExamSubmissions() {
+            // Hide the main back button when showing submissions
+            document.getElementById('backToExamListBtn').style.display = 'none';
+            
+            // Hide exam description card and show submissions view
+            document.getElementById('examDescriptionCard').style.display = 'none';
+            document.getElementById('examSubmissionsView').style.display = 'block';
+            
+            // Get current exam data
+            const exam = examData[currentExamId];
+            if (!exam) return;
+            
+            // Update the submissions view title to include exam name
+            const submissionsHeader = document.querySelector('#examSubmissionsView .section-header h3');
+            if (submissionsHeader) {
+                submissionsHeader.innerHTML = `<i class="fas fa-paper-plane me-2"></i>${exam.title} - Submissions`;
+            }
+            
+            // Populate submissions table with mock data
+            const submissionsTableBody = document.getElementById('submissionsTableBody');
+            submissionsTableBody.innerHTML = getMockSubmissions(exam)
+                .map(submission => `
+                    <tr>
+                        <td>${submission.studentName}</td>
+                        <td>${submission.score}</td>
+                        <td>${submission.scoreNormalized}</td>
+                        <td>${submission.grade}</td>
+                        <td>${submission.startTime}</td>
+                        <td>${submission.endTime}</td>
+                        <td>${submission.submissionDate}</td>
+                    </tr>
+                `).join('');
+        }
+
+        // Add mock submissions data function
+        function getMockSubmissions(exam) {
+            return [
+                {
+                    studentName: "John Doe",
+                    score: "45/50",
+                    scoreNormalized: "90",
+                    grade: "A",
+                    startTime: "09:00 AM",
+                    endTime: "10:30 AM",
+                    submissionDate: "15 Mar 2024"
+                },
+                {
+                    studentName: "Jane Smith",
+                    score: "42/50",
+                    scoreNormalized: "84",
+                    grade: "B",
+                    startTime: "09:15 AM",
+                    endTime: "10:45 AM",
+                    submissionDate: "15 Mar 2024"
+                },
+                {
+                    studentName: "Mike Johnson",
+                    score: "48/50",
+                    scoreNormalized: "96",
+                    grade: "A",
+                    startTime: "09:30 AM",
+                    endTime: "11:00 AM",
+                    submissionDate: "15 Mar 2024"
+                }
+            ];
+        }
+
+        // Update the submit button click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing code ...
+            
+            // Add click handler for submit button
+            const submitBtn = document.querySelector('.action-btn.submit-btn');
+            if (submitBtn) {
+                submitBtn.onclick = showExamSubmissions;
+            }
+        });
+
+        // Add search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('#examSubmissionsView .search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#submissionsTableBody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+        });
+
+        // Add back button functionality
+        function backToExamDescription() {
+            if (currentExamId) {
+                // Show the main back button again
+                document.getElementById('backToExamListBtn').style.display = 'block';
+                
+                // Hide submissions view and show description card
+                document.getElementById('examSubmissionsView').style.display = 'none';
+                document.getElementById('examDescriptionCard').style.display = 'block';
+            }
+        }
+
+        // Add these new functions for handling correct answers display
+
+        function toggleCorrectAnswers() {
+            const showAnswers = document.getElementById('showCorrectAnswers').checked;
+            const questionCards = document.querySelectorAll('.question-card');
+            
+            questionCards.forEach(card => {
+                const questionType = card.getAttribute('data-question-id');
+                
+                // Remove any existing correct answer highlights
+                card.querySelectorAll('.correct-answer').forEach(el => {
+                    el.classList.remove('correct-answer');
+                });
+                
+                if (showAnswers) {
+                    switch(questionType) {
+                        case '1': // Multiple Choice
+                            highlightMCQAnswer(card);
+                            break;
+                        case '2': // True/False
+                            highlightTFAnswer(card);
+                            break;
+                        case '3': // Fill in Blank
+                            showBlankAnswer(card);
+                            break;
+                    }
+                } else {
+                    // Remove answer indicators
+                    card.querySelectorAll('.answer-indicator').forEach(el => el.remove());
+                }
+            });
+        }
+
+        function highlightMCQAnswer(card) {
+            const choices = card.querySelectorAll('.choice-item');
+            // Assuming the first choice is correct for demo purposes
+            // In real implementation, you would get this from your question data
+            const correctChoice = choices[0];
+            
+            if (correctChoice) {
+                correctChoice.classList.add('correct-answer');
+                addAnswerIndicator(correctChoice);
+            }
+        }
+
+        function highlightTFAnswer(card) {
+            const choices = card.querySelectorAll('.choice-item');
+            // Assuming 'True' is correct for demo purposes
+            const correctChoice = choices[0];
+            
+            if (correctChoice) {
+                correctChoice.classList.add('correct-answer');
+                addAnswerIndicator(correctChoice);
+            }
+        }
+
+        function showBlankAnswer(card) {
+            const blankInputs = card.querySelectorAll('.blank-input');
+            blankInputs.forEach(input => {
+                const answerSpan = document.createElement('span');
+                answerSpan.className = 'answer-indicator';
+                answerSpan.textContent = '(Answer: sample answer)'; // Replace with actual answer
+                answerSpan.style.color = '#28a745';
+                input.parentNode.insertBefore(answerSpan, input.nextSibling);
+            });
+        }
+
+        function addAnswerIndicator(element) {
+            const indicator = document.createElement('div');
+            indicator.className = 'answer-indicator';
+            indicator.innerHTML = '<i class="fas fa-check"></i> Correct Answer';
+            element.appendChild(indicator);
+        }
+
+        // Add event listener for the toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const showAnswersCheckbox = document.getElementById('showCorrectAnswers');
+            if (showAnswersCheckbox) {
+                showAnswersCheckbox.addEventListener('change', toggleCorrectAnswers);
+            }
+        });
+    </script>
+</body>
+</html>

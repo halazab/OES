@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block content %}
+<div class="result-container">
+    <div class="section-header">
+        <h4><i class="fas fa-clipboard-check me-2"></i>Exam Results</h4>
+    </div>
+
+    <div class="result-card">
+        <div class="card-header">
+            <h5>{{ exam.title }}</h5>
+            {% if exam.is_premium %}
+                <span class="badge premium-badge">
+                    <i class="fas fa-crown"></i> Premium
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <!-- Score Overview -->
+            <div class="score-overview">
+                <div class="score-circle {% if passed %}passed{% else %}failed{% endif %}">
+                    <div class="score-value">
+                        {{ percentage|floatformat:1 }}%
+                    </div>
+                    <div class="score-label">Your Score</div>
+                </div>
+                
+                <div class="score-details">
+                    <div class="detail-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Correct Answers:</span>
+                        <strong>{{ score }} / {{ total_questions }}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-percentage"></i>
+                        <span>Passing Score:</span>
+                        <strong>{{ exam.passing_percentage }}%</strong>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Time Taken:</span>
+                        <strong>{{ exam.duration }} minutes</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Status -->
+            <div class="result-status {% if passed %}passed{% else %}failed{% endif %}">
+                {% if passed %}
+                    <i class="fas fa-trophy"></i>
+                    <h3>Congratulations! You Passed!</h3>
+                    <p>Well done on completing the exam successfully.</p>
+                {% else %}
+                    <i class="fas fa-times-circle"></i>
+                    <h3>Not Passed</h3>
+                    <p>Keep practicing and try again. You can do it!</p>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'exam_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> Back to Exams
+                </a>
+                {% if not passed %}
+                    <a href="{% url 'take_exam' exam.id %}" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Retake Exam
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-container {
+    padding: 20px;
+}
+
+.section-header {
+    margin-bottom: 30px;
+}
+
+.section-header h4 {
+    color: #2c3e50;
+    margin: 0;
+}
+
+.result-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.result-card .card-header {
+    padding: 20px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.result-card .card-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.25rem;
+}
+
+.card-body {
+    padding: 30px;
+}
+
+/* Score Overview */
+.score-overview {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    position: relative;
+}
+
+.score-circle.passed {
+    background: linear-gradient(45deg, #10b981, #059669);
+}
+
+.score-circle.failed {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+}
+
+.score-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.score-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.score-details {
+    flex: 1;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #64748b;
+}
+
+.detail-item i {
+    width: 24px;
+    color: #667eea;
+}
+
+.detail-item strong {
+    color: #2c3e50;
+    margin-left: auto;
+}
+
+/* Result Status */
+.result-status {
+    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.result-status.passed {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.result-status.failed {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.result-status i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.result-status h3 {
+    color: inherit;
+    margin-bottom: 10px;
+}
+
+.result-status p {
+    color: #64748b;
+    margin: 0;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.premium-badge {
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    color: #000;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: #667eea;
+    border: none;
+    color: white;
+}
+
+.btn-secondary {
+    background: #f8fafc;
+    border: none;
+    color: #2c3e50;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .score-overview {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .detail-item {
+        justify-content: space-between;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %} 

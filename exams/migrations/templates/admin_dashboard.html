@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <a href="{% url 'create_exam' %}" class="btn btn-primary">Create Exam</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Premium</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.title }}</td>
+                    <td>{{ exam.is_premium }}</td>
+                    <td>
+                        <a href="{% url 'edit_exam' exam.id %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'delete_exam' exam.id %}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Support Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Support Management</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ticketModal">
+            <i class="fas fa-plus"></i> Create Ticket
+        </button>
+    </div>
+
+    <!-- Support Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-ticket-alt fa-2x text-white"></i>
+                    </div>
+                    <h3 class="mt-3">Open Tickets</h3>
+                    <div class="h4 mb-3">{{ open_tickets_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-check-circle fa-2x text-white"></i>
+                    </div>
+                    <h3 class="mt-3">Resolved</h3>
+                    <div class="h4 mb-3">{{ resolved_tickets_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="card-icon bg-warning">
+                        <i class="fas fa-clock fa-2x text-white"></i>
+                    </div>
+                    <h3 class="mt-3">Pending</h3>
+                    <div class="h4 mb-3">{{ pending_tickets_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-reply-all fa-2x text-white"></i>
+                    </div>
+                    <h3 class="mt-3">Response Time</h3>
+                    <div class="h4 mb-3">{{ avg_response_time }}h</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Tickets -->
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Support Tickets</h4>
+            <div class="table-responsive">
+                <table class="table table-hover" id="supportTable">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>#{{ ticket.id }}</td>
+                            <td>{{ ticket.user.get_full_name }}</td>
+                            <td>{{ ticket.subject }}</td>
+                            <td>
+                                <span class="badge bg-{% if ticket.priority == 'high' %}danger{% elif ticket.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                    {{ ticket.priority|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'resolved' %}success{% else %}warning{% endif %}">
+                                    {{ ticket.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ ticket.updated_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-info" onclick="viewTicket('{{ ticket.id }}')" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" onclick="respondTicket('{{ ticket.id }}')" title="Respond">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    {% if ticket.status != 'resolved' %}
+                                    <button class="btn btn-sm btn-success" onclick="resolveTicket('{{ ticket.id }}')" title="Resolve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Ticket Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Support Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="ticketForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" name="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" name="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" name="message" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Attachments</label>
+                        <input type="file" class="form-control" name="attachments" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Respond to Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="responseForm">
+                {% csrf_token %}
+                <input type="hidden" name="ticket_id" id="responseTicketId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Response</label>
+                        <textarea class="form-control" name="response" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Attachments</label>
+                        <input type="file" class="form-control" name="attachments" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Response</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        $('#supportTable').DataTable({
+            order: [[5, 'desc']],
+            pageLength: 10,
+            language: {
+                search: "",
+                searchPlaceholder: "Search tickets..."
+            }
+        });
+
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+
+    // Create ticket
+    $('#ticketForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "create_ticket" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    // View ticket details
+    function viewTicket(ticketId) {
+        window.location.href = `/support/ticket/${ticketId}/`;
+    }
+
+    // Open response modal
+    function respondTicket(ticketId) {
+        $('#responseTicketId').val(ticketId);
+        $('#responseModal').modal('show');
+    }
+
+    // Submit response
+    $('#responseForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "respond_ticket" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    // Resolve ticket
+    function resolveTicket(ticketId) {
+        if (confirm('Are you sure you want to resolve this ticket?')) {
+            $.post('{% url "resolve_ticket" %}', {
+                ticket_id: ticketId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }, function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            });
+        }
+    }
+</script>
+{% endblock %} 

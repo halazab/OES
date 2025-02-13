@@ -1,0 +1,205 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Ticket #{{ ticket.id }}</h1>
+            <p class="text-muted mb-0">{{ ticket.subject }}</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'support_management' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Support
+            </a>
+            {% if ticket.status != 'resolved' %}
+            <button class="btn btn-success" onclick="resolveTicket('{{ ticket.id }}')">
+                <i class="fas fa-check"></i> Resolve Ticket
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Ticket Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Original Ticket -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ ticket.user.profile.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                                 alt="{{ ticket.user.get_full_name }}" 
+                                 class="rounded-circle me-2" 
+                                 style="width: 40px; height: 40px;">
+                            <div>
+                                <h5 class="mb-0">{{ ticket.user.get_full_name }}</h5>
+                                <small class="text-muted">{{ ticket.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge bg-{% if ticket.priority == 'high' %}danger{% elif ticket.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                {{ ticket.priority|title }}
+                            </span>
+                            <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'resolved' %}success{% else %}warning{% endif %}">
+                                {{ ticket.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ticket-message">
+                        {{ ticket.message|linebreaks }}
+                    </div>
+                    {% if ticket.attachments.exists %}
+                    <div class="mt-3">
+                        <h6>Attachments:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for attachment in ticket.attachments.all %}
+                            <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                <i class="fas fa-paperclip"></i> {{ attachment.file.name|split:'/'|last }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Responses -->
+            {% for response in responses %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ response.user.profile.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                                 alt="{{ response.user.get_full_name }}" 
+                                 class="rounded-circle me-2" 
+                                 style="width: 40px; height: 40px;">
+                            <div>
+                                <h5 class="mb-0">{{ response.user.get_full_name }}</h5>
+                                <small class="text-muted">{{ response.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="response-message">
+                        {{ response.message|linebreaks }}
+                    </div>
+                    {% if response.attachments.exists %}
+                    <div class="mt-3">
+                        <h6>Attachments:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for attachment in response.attachments.all %}
+                            <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                <i class="fas fa-paperclip"></i> {{ attachment.file.name|split:'/'|last }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Response Form -->
+            {% if ticket.status != 'resolved' %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Add Response</h5>
+                    <form id="responseForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                        <div class="mb-3">
+                            <textarea class="form-control" name="response" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Attachments</label>
+                            <input type="file" class="form-control" name="attachments" multiple>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send Response
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Ticket Details Sidebar -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ticket Details</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{% if ticket.status == 'open' %}primary{% elif ticket.status == 'resolved' %}success{% else %}warning{% endif %}">
+                                {{ ticket.status|title }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Priority</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{% if ticket.priority == 'high' %}danger{% elif ticket.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                {{ ticket.priority|title }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Created</dt>
+                        <dd class="col-sm-8">{{ ticket.created_at|date:"M d, Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">Updated</dt>
+                        <dd class="col-sm-8">{{ ticket.updated_at|date:"M d, Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">Responses</dt>
+                        <dd class="col-sm-8">{{ responses.count }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Response form submission
+    $('#responseForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "respond_ticket" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    // Resolve ticket
+    function resolveTicket(ticketId) {
+        if (confirm('Are you sure you want to resolve this ticket?')) {
+            $.post('{% url "resolve_ticket" %}', {
+                ticket_id: ticketId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }, function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            });
+        }
+    }
+</script>
+{% endblock %} 
