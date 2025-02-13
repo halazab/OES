@@ -1,0 +1,376 @@
+{% extends 'base_dashboard.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Exam Management</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExamModal">
+                <i class="fas fa-plus"></i> Add New Exam
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Duration (mins)</th>
+                            <th>Premium</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td>{{ exam.title }}</td>
+                            <td>{{ exam.description|truncatewords:10 }}</td>
+                            <td>{{ exam.duration }}</td>
+                            <td>
+                                {% if exam.is_premium %}
+                                    <span class="badge bg-warning">Premium</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Free</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="editExam({{ exam.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="manageQuestions({{ exam.id }})">
+                                    <i class="fas fa-list"></i> Questions
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteExam({{ exam.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Exam Modal -->
+<div class="modal fade" id="addExamModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add/Edit Exam</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="examForm">
+                    <input type="hidden" id="examId" name="examId">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" id="examTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="examDescription" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="examDuration" name="duration" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isPremium" name="is_premium">
+                        <label class="form-check-label">Premium Exam</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveExam()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Questions Management Modal -->
+<div class="modal fade" id="questionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-primary mb-3" onclick="showAddQuestionForm()">
+                    <i class="fas fa-plus"></i> Add Question
+                </button>
+                <div id="questionsList"></div>
+                <div id="addQuestionForm" style="display: none;">
+                    <form id="questionForm">
+                        <input type="hidden" id="currentExamId" name="examId">
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <textarea class="form-control" id="questionText" name="text" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Options</label>
+                            <div id="optionsContainer">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" name="options[]" required>
+                                    <div class="input-group-text">
+                                        <input type="radio" name="correct_answer" value="0" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="addOption()">
+                                Add Option
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveQuestion()">Save Question</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddQuestionForm()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Exam Management
+function editExam(examId) {
+    // Clear previous data
+    document.getElementById('examForm').reset();
+    
+    fetch(`/main-admin/exams/${examId}/`)
+        .then(response => response.json())
+        .then(exam => {
+            document.getElementById('examId').value = examId;
+            document.getElementById('examTitle').value = exam.title;
+            document.getElementById('examDescription').value = exam.description;
+            document.getElementById('examDuration').value = exam.duration;
+            document.getElementById('isPremium').checked = exam.is_premium;
+            new bootstrap.Modal(document.getElementById('addExamModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading exam details');
+        });
+}
+
+function saveExam() {
+    const form = document.getElementById('examForm');
+    const formData = new FormData(form);
+    
+    fetch('/main-admin/exams/save/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error saving exam: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving exam');
+    });
+}
+
+function deleteExam(examId) {
+    if (confirm('Are you sure you want to delete this exam?')) {
+        fetch('/main-admin/exams/delete/', {
+            method: 'POST',
+            body: JSON.stringify({ exam_id: examId }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting exam: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting exam');
+        });
+    }
+}
+
+// Question Management
+function manageQuestions(examId) {
+    document.getElementById('currentExamId').value = examId;
+    loadQuestions(examId);
+    new bootstrap.Modal(document.getElementById('questionsModal')).show();
+}
+
+function loadQuestions(examId) {
+    fetch(`/main-admin/exams/questions/list/?exam_id=${examId}`)
+        .then(response => response.json())
+        .then(questions => {
+            const questionsList = document.getElementById('questionsList');
+            if (questions.length === 0) {
+                questionsList.innerHTML = '<p class="text-muted">No questions added yet.</p>';
+                return;
+            }
+            questionsList.innerHTML = questions.map(q => `
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <p class="mb-3">${q.text}</p>
+                        <div class="options-list">
+                            ${q.options.map((opt, idx) => `
+                                <div class="option ${opt.is_correct ? 'correct' : ''}">
+                                    ${idx + 1}. ${opt.text}
+                                    ${opt.is_correct ? '<span class="badge bg-success ms-2">Correct</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="deleteQuestion(${q.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('questionsList').innerHTML = 
+                '<p class="text-danger">Error loading questions</p>';
+        });
+}
+
+function showAddQuestionForm() {
+    document.getElementById('questionsList').style.display = 'none';
+    document.getElementById('addQuestionForm').style.display = 'block';
+}
+
+function hideAddQuestionForm() {
+    document.getElementById('questionsList').style.display = 'block';
+    document.getElementById('addQuestionForm').style.display = 'none';
+    document.getElementById('questionForm').reset();
+}
+
+function addOption() {
+    const container = document.getElementById('optionsContainer');
+    const optionCount = container.children.length;
+    const optionHtml = `
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" name="options[]" required>
+            <div class="input-group-text">
+                <input type="radio" name="correct_answer" value="${optionCount}" required>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', optionHtml);
+}
+
+function saveQuestion() {
+    const form = document.getElementById('questionForm');
+    const formData = new FormData(form);
+    
+    // Add options and correct answer
+    const options = [];
+    const optionsInputs = form.querySelectorAll('input[name="options[]"]');
+    optionsInputs.forEach((input, index) => {
+        options.push({
+            text: input.value,
+            is_correct: form.querySelector(`input[name="correct_answer"]:checked`).value == index
+        });
+    });
+    
+    formData.append('options', JSON.stringify(options));
+    
+    fetch('/main-admin/exams/questions/add/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            hideAddQuestionForm();
+            loadQuestions(document.getElementById('currentExamId').value);
+        } else {
+            alert('Error saving question: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving question');
+    });
+}
+
+function deleteQuestion(questionId) {
+    if (confirm('Are you sure you want to delete this question?')) {
+        fetch('/main-admin/exams/questions/delete/', {
+            method: 'POST',
+            body: JSON.stringify({ question_id: questionId }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadQuestions(document.getElementById('currentExamId').value);
+            } else {
+                alert('Error deleting question: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting question');
+        });
+    }
+}
+
+// Utility function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<style>
+.options-list {
+    margin: 10px 0;
+}
+
+.option {
+    padding: 5px 10px;
+    margin: 2px 0;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.option.correct {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+</style>
+{% endblock %} 

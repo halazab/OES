@@ -1,0 +1,176 @@
+{% extends 'exams/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ exam.title }}</h2>
+    <form method="post" id="examForm">
+        {% csrf_token %}
+        {% for question in questions %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Question {{ forloop.counter }}: {{ question.text }}</h5>
+                    
+                    {% if question.question_type == 'MCQ' %}
+                        <div class="form-check">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ question.option_a }}" required>
+                            <label>{{ question.option_a }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ question.option_b }}">
+                            <label>{{ question.option_b }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ question.option_c }}">
+                            <label>{{ question.option_c }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ question.option_d }}">
+                            <label>{{ question.option_d }}</label>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary mb-4">Submit Exam</button>
+    </form>
+</div>
+
+<script>
+    let currentQuestion = 1;
+    const totalQuestions = {{ questions|length }};
+    let userAnswers = {};
+
+    // Show first question on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        showQuestion(1);
+        generatePagination();
+        startTimer({{ exam.duration }} * 60); // Convert minutes to seconds
+        
+        // Add event listeners to all choice items
+        document.querySelectorAll('.choice-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove selected class from all siblings
+                const parent = this.closest('.options-container');
+                parent.querySelectorAll('.choice-item').forEach(sibling => {
+                    sibling.classList.remove('selected');
+                });
+                // Add selected class to clicked item
+                this.classList.add('selected');
+                
+                // Store the answer
+                const questionId = this.querySelector('input').name;
+                const answer = this.querySelector('input').value;
+                userAnswers[questionId] = answer;
+            });
+        });
+    });
+
+    function showQuestion(questionNumber) {
+        // Hide all questions
+        document.querySelectorAll('.question-card').forEach(card => {
+            card.style.display = 'none';
+        });
+        
+        // Show current question
+        const questionToShow = document.querySelector(`.question-card[data-question="${questionNumber}"]`);
+        if (questionToShow) {
+            questionToShow.style.display = 'block';
+            
+            // Restore any previously selected answer
+            const questionInputs = questionToShow.querySelectorAll('input[type="radio"]');
+            if (questionInputs.length > 0) {
+                const questionName = questionInputs[0].name;
+                if (userAnswers[questionName]) {
+                    const savedAnswer = userAnswers[questionName];
+                    const matchingInput = Array.from(questionInputs).find(input => input.value === savedAnswer);
+                    if (matchingInput) {
+                        matchingInput.checked = true;
+                        matchingInput.closest('.choice-item').classList.add('selected');
+                    }
+                }
+            }
+        }
+        
+        // Update navigation buttons
+        document.getElementById('prevBtn').disabled = questionNumber === 1;
+        const nextBtn = document.getElementById('nextBtn');
+        if (questionNumber === totalQuestions) {
+            nextBtn.textContent = 'Submit';
+            nextBtn.classList.remove('btn-primary');
+            nextBtn.classList.add('btn-success');
+            nextBtn.onclick = function() { submitExam(); };
+        } else {
+            nextBtn.textContent = 'Next';
+            nextBtn.classList.remove('btn-success');
+            nextBtn.classList.add('btn-primary');
+            nextBtn.onclick = function() { nextQuestion(); };
+        }
+    }
+
+    function previousQuestion() {
+        if (currentQuestion > 1) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+            generatePagination();
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+            generatePagination();
+        }
+    }
+
+    function submitExam() {
+        if (confirm('Are you sure you want to submit the exam?')) {
+            document.getElementById('examForm').submit();
+        }
+    }
+
+    function startTimer(duration) {
+        let timer = duration;
+        const timerDisplay = document.getElementById('examTimer');
+        
+        const countdown = setInterval(() => {
+            const minutes = parseInt(timer / 60, 10);
+            const seconds = parseInt(timer % 60, 10);
+            
+            const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+            const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+            
+            timerDisplay.textContent = `Time Remaining: ${formattedMinutes}:${formattedSeconds}`;
+            
+            if (--timer < 0) {
+                clearInterval(countdown);
+                alert('Time is up! Your exam will be submitted automatically.');
+                document.getElementById('examForm').submit();
+            }
+        }, 1000);
+    }
+
+    function generatePagination() {
+        const paginationContainer = document.querySelector('.pagination');
+        paginationContainer.innerHTML = '';
+        
+        for (let i = 1; i <= totalQuestions; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === currentQuestion ? 'active' : ''}`;
+            li.innerHTML = `
+                <button type="button" class="page-link" onclick="goToQuestion(${i})">
+                    ${i}
+                </button>
+            `;
+            paginationContainer.appendChild(li);
+        }
+    }
+
+    function goToQuestion(questionNumber) {
+        currentQuestion = questionNumber;
+        showQuestion(questionNumber);
+        generatePagination();
+    }
+</script>
+{% endblock %} 

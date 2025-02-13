@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block content %}
+<div class="exam-list-container">
+    <div class="section-header">
+        <h4><i class="fas fa-book me-2"></i>Available Exams</h4>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="examSearch" placeholder="Search exams...">
+        </div>
+    </div>
+
+    <div class="exam-grid">
+        {% for exam in exam %}
+        <div class="exam-card">
+            <div class="exam-card-header">
+                <h5>{{ exam.title }}</h5>
+                {% if exam.is_premium %}
+                    {% if user.profile.subscription_status == 'premium' %}
+                        <span class="badge premium-badge">
+                            <i class="fas fa-crown"></i> Premium
+                        </span>
+                    {% else %}
+                        <span class="badge locked-badge">
+                            <i class="fas fa-lock"></i> Premium
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="exam-details">
+                <div class="detail-item">
+                    <i class="far fa-clock"></i>
+                    <span>{{ exam.duration }} minutes</span>
+                </div>
+                <div class="detail-item">
+                    <i class="far fa-question-circle"></i>
+                    <span>{{ exam.number_of_questions }} Questions</span>
+                </div>
+            </div>
+
+            <div class="exam-action">
+                {% if exam.is_premium and user.profile.subscription_status != 'premium' %}
+                    <a href="{% url 'subscription_plans' %}" class="btn btn-warning">
+                        <i class="fas fa-crown"></i> Subscribe to Access
+                    </a>
+                {% else %}
+                    <a href="{% url 'take_exam' exam.id %}" class="btn btn-primary">
+                        <i class="fas fa-pen"></i> Take Exam
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-exams">
+            <i class="fas fa-book-open"></i>
+            <p>No exams available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if exam.has_other_pages %}
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if exam.has_previous %}
+                <a href="?page=1" class="page-link first-page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ exam.previous_page_number }}" class="page-link">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+
+            {% for num in exam.paginator.page_range %}
+                {% if exam.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > exam.number|add:'-3' and num < exam.number|add:'3' %}
+                    <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if exam.has_next %}
+                <a href="?page={{ exam.next_page_number }}" class="page-link">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ exam.paginator.num_pages }}" class="page-link last-page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.exam-list-container {
+    padding: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h4 {
+    color: #2c3e50;
+    margin: 0;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #95a5a6;
+}
+
+.exam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.exam-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.exam-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.exam-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+.exam-card-header h5 {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 500;
+}
+
+.badge {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.premium-badge {
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    color: #000;
+}
+
+.locked-badge {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.exam-details {
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.detail-item i {
+    width: 20px;
+}
+
+.exam-action {
+    margin-top: auto;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: #667eea;
+    border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    border: none;
+    color: #000;
+}
+
+.no-exams {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    color: #95a5a6;
+}
+
+.no-exams i {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .pagination {
+        gap: 3px;
+    }
+
+    .page-link {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9em;
+    }
+}
+
+/* Add these new styles for pagination */
+.pagination-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #f8fafc;
+    color: #667eea;
+}
+
+.page-link.active {
+    background: #667eea;
+    color: white;
+}
+
+.first-page, .last-page {
+    background: #f8fafc;
+}
+</style>
+
+<script>
+document.getElementById('examSearch').addEventListener('input', function(e) {
+    const searchText = e.target.value.toLowerCase();
+    const examCards = document.querySelectorAll('.exam-card');
+    
+    examCards.forEach(card => {
+        const title = card.querySelector('h5').textContent.toLowerCase();
+        if (title.includes(searchText)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

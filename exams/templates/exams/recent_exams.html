@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-md-8">
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title border-bottom pb-3 mb-4" style="color: #2c3e50; font-weight: 600;">
+                <i class="fas fa-clock me-2"></i>Recent Exams
+            </h5>
+
+            {% if user.profile.subscription_status != 'premium' %}
+            <!-- Premium Subscription Prompt -->
+            <div class="premium-prompt mb-4 p-4 text-center" 
+                 style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border-radius: 12px; color: #2c3e50;">
+                <div class="mb-3">
+                    <i class="fas fa-crown fa-3x" style="color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.1);"></i>
+                </div>
+                <h4 class="mb-2" style="color: #fff; font-weight: 600;">Unlock Premium Access</h4>
+                <p class="mb-3" style="color: #fff;">Get access to premium exams and enhance your learning experience</p>
+                <a href="{% url 'subscription_plans' %}" 
+                   class="btn btn-light btn-lg" 
+                   style="border-radius: 25px; padding: 10px 30px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <i class="fas fa-rocket me-2"></i>Upgrade Now
+                </a>
+            </div>
+            {% endif %}
+
+            {% for exam in recent_exams %}
+            <div class="recent-exam-item py-3 border-bottom hover-effect" 
+                 style="transition: all 0.3s ease; background: white;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1" style="color: #34495e; font-weight: 500; font-size: 1.1rem;">
+                            {{ exam.title }}
+                        </h6>
+                        <small class="text-muted d-flex align-items-center gap-2">
+                            <span><i class="far fa-calendar-alt"></i> {{ exam.created_at|date:"M d, Y" }}</span>
+                            <span class="mx-1">•</span>
+                            <span><i class="far fa-clock"></i> {{ exam.duration }} min</span>
+                        </small>
+                    </div>
+                    <div>
+                        {% if exam.is_premium %}
+                            {% if user.profile.subscription_status == 'premium' %}
+                                <span class="badge" 
+                                      style="background-color: #ffd700; color: #000; padding: 8px 12px; border-radius: 20px; font-weight: 500;">
+                                    <i class="fas fa-crown me-1"></i>Premium
+                                </span>
+                            {% else %}
+                                <span class="badge" 
+                                      style="background-color: #e9ecef; color: #6c757d; padding: 8px 12px; border-radius: 20px; font-weight: 500;">
+                                    <i class="fas fa-lock me-1"></i>Premium
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3">
+                    {% if exam.is_premium and user.profile.subscription_status != 'premium' %}
+                        <a href="{% url 'subscription_plans' %}" 
+                           class="btn btn-sm btn-warning" 
+                           style="border-radius: 20px; padding: 6px 15px; font-weight: 500; background-color: #ffd700; border: none; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fas fa-crown me-1"></i>Subscribe to Access
+                        </a>
+                    {% else %}
+                        <a href="{% url 'take_exam' exam.id %}" 
+                           class="btn btn-sm btn-primary" 
+                           style="border-radius: 20px; padding: 6px 15px; font-weight: 500; background-color: #3498db; border: none; box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);">
+                            <i class="fas fa-pen me-1"></i>Take Exam
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4">
+                <div style="color: #95a5a6;">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p class="mb-0">No recent exams found.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .recent-exam-item:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .recent-exam-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+    }
+
+    .premium-prompt {
+        transition: all 0.3s ease;
+    }
+
+    .premium-prompt:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .badge {
+        transition: all 0.3s ease;
+    }
+
+    .badge:hover {
+        transform: scale(1.05);
+    }
+
+    .text-muted {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %} 

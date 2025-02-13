@@ -1,0 +1,46 @@
+<!-- exam_questions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} Questions</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <style>
+        .question-card {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">{{ exam.title }} Questions</h2>
+        
+        {% for question in questions %}
+            <div class="question-card">
+                <h5>{{ question.text }}</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Option A: {{ question.option_a }}</li>
+                    <li class="list-group-item">Option B: {{ question.option_b }}</li>
+                    <li class="list-group-item">Option C: {{ question.option_c }}</li>
+                    <li class="list-group-item">Option D: {{ question.option_d }}</li>
+                </ul>
+                <p><strong>Correct Answer:</strong> {{ question.correct_answer }}</p>
+            </div>
+        {% empty %}
+            <p>No questions available for this exam.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

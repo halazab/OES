@@ -1,0 +1,13 @@
+{% if has_subscription %}
+<div class="alert alert-info">
+    <h5 class="alert-heading">Current Subscription</h5>
+    <p>Type: {{ subscription_type|title }}</p>
+    <p>Valid until: {{ end_date }}</p>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <h5 class="alert-heading">No Active Subscription</h5>
+    <p>You currently don't have an active subscription.</p>
+    <a href="{% url 'subscription_plans' %}" class="btn btn-primary btn-sm">View Plans</a>
+</div>
+{% endif %} 

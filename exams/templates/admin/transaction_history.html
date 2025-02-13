@@ -1,0 +1,231 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Transaction History</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-success me-2" onclick="exportTransactions()">
+                <i class="fas fa-file-excel"></i> Export
+            </button>
+            <button class="btn btn-primary" onclick="generateReport()">
+                <i class="fas fa-chart-bar"></i> Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Date Range</label>
+                    <select class="form-select" name="date_range">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Transaction Type</label>
+                    <select class="form-select" name="transaction_type">
+                        <option value="all">All Types</option>
+                        <option value="subscription">Subscription</option>
+                        <option value="exam">Exam Purchase</option>
+                        <option value="refund">Refund</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="all">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-primary d-block" onclick="applyFilters()">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>User</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.reference }}</td>
+                            <td>{{ transaction.user.username }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ transaction.get_transaction_type_display }}</span>
+                            </td>
+                            <td>${{ transaction.amount }}</td>
+                            <td>
+                                {% if transaction.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif transaction.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif transaction.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Refunded</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewDetails('{{ transaction.reference }}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if transaction.status == 'completed' %}
+                                <button class="btn btn-sm btn-warning" onclick="initiateRefund('{{ transaction.reference }}')">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="transactionDetails">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewDetails(reference) {
+    fetch(`/main-admin/transactions/details/?reference=${reference}`)
+        .then(response => response.json())
+        .then(data => {
+            const details = document.getElementById('transactionDetails');
+            details.innerHTML = `
+                <dl class="row">
+                    <dt class="col-sm-4">Reference</dt>
+                    <dd class="col-sm-8">${data.reference}</dd>
+                    
+                    <dt class="col-sm-4">User</dt>
+                    <dd class="col-sm-8">${data.user}</dd>
+                    
+                    <dt class="col-sm-4">Type</dt>
+                    <dd class="col-sm-8">${data.type}</dd>
+                    
+                    <dt class="col-sm-4">Amount</dt>
+                    <dd class="col-sm-8">$${data.amount}</dd>
+                    
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">${data.status}</dd>
+                    
+                    <dt class="col-sm-4">Date</dt>
+                    <dd class="col-sm-8">${data.date}</dd>
+                    
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">${data.description}</dd>
+                </dl>
+            `;
+            new bootstrap.Modal(document.getElementById('transactionModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading transaction details');
+        });
+}
+
+function applyFilters() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+    
+    window.location.href = `?${params.toString()}`;
+}
+
+function exportTransactions() {
+    window.location.href = '/main-admin/transactions/export/';
+}
+
+function generateReport() {
+    window.location.href = '/main-admin/transactions/report/';
+}
+
+function initiateRefund(reference) {
+    if (confirm('Are you sure you want to initiate a refund for this transaction?')) {
+        fetch('/main-admin/transactions/refund/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                reference: reference
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error initiating refund: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error initiating refund');
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

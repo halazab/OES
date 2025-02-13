@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="col-md-8">
+    <div class="card mb-3">
+        <div class="card-body">
+            {% if user.profile.subscription_status == 'premium' %}
+                <div class="text-center py-5">
+                    <i class="fas fa-crown mb-3" style="font-size: 3rem; color: #ffd700;"></i>
+                    <h4 class="mb-3" style="color: #2c3e50;">You're Already a Premium Member!</h4>
+                    <p class="text-muted mb-4">Your premium subscription is currently active.</p>
+                    <p class="mb-4">Valid until: {{ user.profile.subscription_end_date|date:"F d, Y" }}</p>
+                    <a href="{% url 'exam_list' %}" class="btn btn-primary" 
+                       style="border-radius: 25px; padding: 10px 30px; font-weight: 500;">
+                        <i class="fas fa-book me-2"></i>Browse Exams
+                    </a>
+                </div>
+            {% else %}
+                <h5 class="card-title border-bottom pb-3 mb-4" style="color: #2c3e50; font-weight: 600;">
+                    <i class="fas fa-crown me-2"></i>Choose Your Subscription Plan
+                </h5>
+
+                <div class="row g-4 justify-content-center">
+                    {% for plan in plans %}
+                    <div class="col-md-4">
+                        <div class="card h-100 plan-card" 
+                             style="border: none; box-shadow: 0 2px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                            <div class="card-header text-center py-4" 
+                                 style="background: {% if plan == 'premium' %}linear-gradient(135deg, #f6d365 0%, #fda085 100%){% elif plan == 'enterprise' %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% else %}linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%){% endif %}; border: none;">
+                                <h3 class="my-0" style="color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    {{ plan|title }}
+                                </h3>
+                                <div class="price-tag mt-3" style="color: white;">
+                                    <span style="font-size: 2.5rem; font-weight: 700;">ETB {{ plan.price }}</span>
+                                    <span style="font-size: 1rem; opacity: 0.9;">/ {{ plan.duration }} days</span>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column p-4">
+                                <ul class="list-unstyled mt-3 mb-4">
+                                    {% for feature in plan.features %}
+                                    <li class="mb-3 d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2" 
+                                           style="color: {% if plan == 'premium' %}#fda085{% elif plan == 'enterprise' %}#667eea{% else %}#84fab0{% endif %};">
+                                        </i>
+                                        <span>{{ feature }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <button class="btn btn-lg mt-auto subscribe-btn" 
+                                        data-plan="{{ plan }}"
+                                        data-amount="{{ plan.price }}"
+                                        style="border-radius: 25px; font-weight: 500; 
+                                               background: {% if plan == 'premium' %}#fda085{% elif plan == 'enterprise' %}#667eea{% else %}#84fab0{% endif %}; 
+                                               color: white; border: none; 
+                                               box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-rocket me-2"></i>Get Started
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Premium Features Section -->
+                <div class="mt-5 pt-4 border-top">
+                    <h5 class="text-center mb-4" style="color: #2c3e50;">Why Choose Premium?</h5>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4" 
+                                 style="background: #f8f9fa; border-radius: 15px;">
+                                <i class="fas fa-infinity mb-3" style="font-size: 2rem; color: #fda085;"></i>
+                                <h6>Unlimited Access</h6>
+                                <p class="text-muted mb-0">Access all premium exams without restrictions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4" 
+                                 style="background: #f8f9fa; border-radius: 15px;">
+                                <i class="fas fa-chart-line mb-3" style="font-size: 2rem; color: #667eea;"></i>
+                                <h6>Detailed Analytics</h6>
+                                <p class="text-muted mb-0">Track your progress with advanced analytics</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-card text-center p-4" 
+                                 style="background: #f8f9fa; border-radius: 15px;">
+                                <i class="fas fa-headset mb-3" style="font-size: 2rem; color: #84fab0;"></i>
+                                <h6>Priority Support</h6>
+                                <p class="text-muted mb-0">Get premium support when you need it</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .plan-card {
+        transition: all 0.3s ease;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .feature-card {
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .subscribe-btn {
+        transition: all 0.3s ease;
+    }
+
+    .subscribe-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+    }
+</style>
+
+{% block extra_js %}
+    {% if not user.profile.subscription_status == 'premium' %}
+        <script>
+        document.querySelectorAll('.subscribe-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const plan = this.dataset.plan;
+                const amount = this.dataset.amount;
+                
+                try {
+                    const response = await fetch('/payment/initialize/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            subscription_type: plan,
+                            amount: amount
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        window.location.href = data.checkout_url;
+                    } else {
+                        alert('Payment initialization failed: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing your request');
+                }
+            });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        </script>
+    {% endif %}
+{% endblock %}
+{% endblock %} 

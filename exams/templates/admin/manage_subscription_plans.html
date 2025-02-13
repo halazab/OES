@@ -1,0 +1,143 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Manage Subscription Plans{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Manage Subscription Plans</h2>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#planModal">
+                <i class="fas fa-plus"></i> Add New Plan
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for plan in plans %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ plan.name }}</h5>
+                    <span class="badge {% if plan.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ plan.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title pricing-card-title">{{ plan.price }} ETB</h3>
+                    <p class="text-muted">{{ plan.duration }} days</p>
+                    <p>{{ plan.description }}</p>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        {% for feature in plan.features %}
+                        <li><i class="fas fa-check text-success"></i> {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-outline-primary" onclick="editPlan({{ plan.id }})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal for adding/editing plans -->
+<div class="modal fade" id="planModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" id="plan_id">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Subscription Plan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Plan Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Price (ETB)</label>
+                        <input type="number" class="form-control" name="price" step="0.01" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Duration (days)</label>
+                        <input type="number" class="form-control" name="duration" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Features (one per line)</label>
+                        <textarea class="form-control" name="features" rows="4" required></textarea>
+                        <small class="text-muted">Enter each feature on a new line</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_active" checked>
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Plan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editPlan(planId) {
+    // Fetch plan details and populate modal
+    fetch(`/api/subscription-plan/${planId}/`)
+        .then(response => response.json())
+        .then(plan => {
+            // Set the plan ID in the hidden field
+            document.getElementById('plan_id').value = plan.id;
+            
+            // Populate form fields
+            document.querySelector('input[name="name"]').value = plan.name;
+            document.querySelector('input[name="price"]').value = plan.price;
+            document.querySelector('input[name="duration"]').value = plan.duration;
+            document.querySelector('textarea[name="description"]').value = plan.description;
+            document.querySelector('textarea[name="features"]').value = plan.features;
+            document.querySelector('input[name="is_active"]').checked = plan.is_active;
+            
+            // Update modal title
+            document.getElementById('modalTitle').textContent = 'Edit Subscription Plan';
+            
+            // Show the modal
+            new bootstrap.Modal(document.getElementById('planModal')).show();
+        })
+        .catch(error => {
+            console.error('Error fetching plan details:', error);
+            alert('Error loading plan details. Please try again.');
+        });
+}
+
+// Reset form when adding new plan
+document.querySelector('[data-bs-target="#planModal"]').addEventListener('click', function() {
+    document.getElementById('plan_id').value = '';
+    document.querySelector('form').reset();
+    document.getElementById('modalTitle').textContent = 'Add Subscription Plan';
+});
+</script>
+{% endblock %} 

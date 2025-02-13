@@ -1,0 +1,282 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-picture {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f8fafc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Navigation Menu */
+        .nav-link {
+            padding: 0.8rem 1rem;
+            color: #2c3e50;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover {
+            background: #f8fafc;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: white;
+            border-radius: 20px 0 0 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        /* Dashboard Cards */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            position: relative;
+            height: 300px !important;
+            width: 100%;
+            max-height: 300px !important;
+        }
+
+        .chart-card {
+            height: 400px;
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .chart-card .card-body {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card .card-title {
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Admin Dashboard</h4>
+                <a href="{% url 'signout' %}" class="text-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{% static 'images/admin-avatar.png' %}" alt="Admin" class="profile-picture">
+                    <div>
+                        <h5 class="mb-1">{{ request.user.username }}</h5>
+                        <span class="status-badge">Admin Portal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="nav flex-column">
+                <div class="section-title">Dashboard</div>
+                <a href="#" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+
+                <div class="section-title">Management</div>
+                <a href="{% url 'admin_student_management' %}" class="nav-link {% if request.resolver_match.url_name == 'student_management' %}active{% endif %}">
+                    <i class="fas fa-users"></i> Students
+                </a>
+                <a href="{% url 'teacher_management' %}" class="nav-link {% if request.resolver_match.url_name == 'teacher_management' %}active{% endif %}">
+                    <i class="fas fa-chalkboard-teacher"></i> Teachers
+                </a>
+                <a href="{% url 'exam_management' %}" class="nav-link {% if request.resolver_match.url_name == 'exam_management' %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i> Exams
+                </a>
+
+                <div class="section-title">Support</div>
+                <a href="{% url 'admin_support' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_support' %}active{% endif %}">
+                    <i class="fas fa-headset"></i> Support Tickets
+                </a>
+
+                <div class="section-title">Finance</div>
+                <a href="{% url 'subscription_management' %}" class="nav-link {% if request.resolver_match.url_name == 'subscription_management' %}active{% endif %}">
+                    <i class="fas fa-credit-card"></i> Subscriptions
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'manage_subscription_plans' %}active{% endif %}" 
+                href="{% url 'manage_subscription_plans' %}">
+                 <i class="fas fa-tags"></i>
+                 <span>Subscription Plans</span>
+             </a>
+                <a href="{% url 'transaction_history' %}" class="nav-link {% if request.resolver_match.url_name == 'transaction_history' %}active{% endif %}">
+                    <i class="fas fa-history"></i> Transactions
+                </a>
+
+                <div class="section-title">Settings</div>
+                <a href="#" class="nav-link {% if request.resolver_match.url_name == 'admin_settings' %}active{% endif %}">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block extra_scripts %}{% endblock %}
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var Tawk_API=Tawk_API||{};
+        Tawk_LoadStart=new Date();
+        
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src="https://embed.tawk.to/67a5dcea3a842732607b480f/1ijfudteo";
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+
+        {% if request.user.is_authenticated %}
+        if (typeof Tawk_API !== 'undefined') {
+            Tawk_API.onLoad = function() {
+                console.log('Tawk.to widget loaded');
+                Tawk_API.setAttributes({
+                    'name': '{{ request.user.get_full_name|default:request.user.username }}',
+                    'email': '{{ request.user.email }}',
+                    'role': 'Admin'
+                }, function(error) {
+                    console.log('Attribute setting ' + (error ? 'failed: ' + error : 'succeeded'));
+                });
+            };
+        }
+        {% endif %}
+    });
+    </script>
+    <!--End of Tawk.to Script-->
+</body>
+</html>

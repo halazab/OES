@@ -1,0 +1,88 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3">Transaction History</h2>
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Revenue</h6>
+                <h3 class="mb-0">{{ total_amount }} ETB</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Subscription</th>
+                            <th>Amount</th>
+                            <th>Reference</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in page_obj %}
+                        <tr>
+                            <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ transaction.user.get_full_name }}</td>
+                            <td>{{ transaction.subscription.subscription_type }}</td>
+                            <td>{{ transaction.amount }} ETB</td>
+                            <td>{{ transaction.transaction_reference }}</td>
+                            <td>
+                                <span class="badge {% if transaction.status == 'success' %}bg-success
+                                             {% elif transaction.status == 'pending' %}bg-warning
+                                             {% else %}bg-danger{% endif %}">
+                                    {{ transaction.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ transaction.updated_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
