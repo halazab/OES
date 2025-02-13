@@ -1,0 +1,716 @@
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block content %}
+<!-- Header -->
+<header class="main-header">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="{% static 'images/logo.png' %}" alt="OES Logo" class="logo">
+            <span>Online Exam System</span>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link active">Home</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#about" class="nav-link">About</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+        <div class="nav-auth">
+            {% if user.is_authenticated %}
+                <a href="{% url 'exam_list' %}" class="btn btn-outline">Dashboard</a>
+                <a href="{% url 'profile' %}" class="btn btn-outline">My Profile</a>
+                <a href="{% url 'signout' %}" class="btn btn-primary">Logout</a>
+            {% else %}
+                <a href="{% url 'signin' %}" class="btn btn-outline">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
+            {% endif %}
+        </div>
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+</header>
+
+<div class="main-content">
+    <!-- Hero Section with Animated Background -->
+    <section class="hero-section">
+        <div class="animated-background"></div>
+        <div class="hero-content">
+            <h1 class="hero-title animate__animated animate__fadeInDown">
+                Transform Your Learning Journey
+            </h1>
+            <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                Experience the next generation of online examination
+            </p>
+            <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                <a href="{% url 'register' %}" class="btn-primary">
+                    <span>Get Started</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <span>Explore Features</span>
+                    <i class="fas fa-compass"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section with Cards -->
+    <section id="features" class="features-section">
+        <div class="section-header reveal-on-scroll">
+            <span class="section-tag">Why Choose Us</span>
+            <h2>Features that Set Us Apart</h2>
+            <p>Discover what makes our platform unique</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card reveal-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Advanced Security</h3>
+                <p>State-of-the-art proctoring system with AI-powered monitoring</p>
+                <a href="#" class="feature-link">Learn More →</a>
+            </div>
+            <div class="feature-card reveal-on-scroll" data-delay="200">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Real-time Results</h3>
+                <p>Instant feedback and comprehensive performance analysis</p>
+                <a href="#" class="feature-link">Learn More →</a>
+            </div>
+            <div class="feature-card reveal-on-scroll" data-delay="400">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Smart Analytics</h3>
+                <p>Deep insights into your learning progress and areas for improvement</p>
+                <a href="#" class="feature-link">Learn More →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section with Animated Counter -->
+    <section class="stats-section parallax-section">
+        <div class="stats-overlay"></div>
+        <div class="stats-container reveal-on-scroll">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="stat-number" data-target="10000">0</span>
+                <span class="stat-label">Active Students</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <span class="stat-number" data-target="500">0</span>
+                <span class="stat-label">Available Exams</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <span class="stat-number" data-target="98">0</span>
+                <span class="stat-label">Success Rate</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section with Timeline -->
+    <section class="how-it-works">
+        <div class="section-header reveal-on-scroll">
+            <span class="section-tag">Process</span>
+            <h2>How It Works</h2>
+            <p>Three simple steps to get started</p>
+        </div>
+        <div class="timeline-container">
+            <div class="timeline-step reveal-on-scroll">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Create Your Account</h3>
+                    <p>Quick and easy registration process</p>
+                </div>
+            </div>
+            <div class="timeline-step reveal-on-scroll" data-delay="200">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Choose Your Exam</h3>
+                    <p>Browse through our extensive collection</p>
+                </div>
+            </div>
+            <div class="timeline-step reveal-on-scroll" data-delay="400">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Start Learning</h3>
+                    <p>Begin your journey to success</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Footer -->
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>About Us</h3>
+            <p>We provide a comprehensive online examination platform designed to make learning and assessment easier and more efficient.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Contact Info</h3>
+            <ul class="contact-info">
+                <li><i class="fas fa-map-marker-alt"></i> Addis Ababa, Ethiopia</li>
+                <li><i class="fas fa-phone"></i> +251905901815</li>
+                <li><i class="fas fa-envelope"></i> info@oes.com</li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Newsletter</h3>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Enter your email">
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Online Exam System. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    /* Modern CSS with animations and effects */
+    .main-content {
+        overflow-x: hidden;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        height: 100vh;
+        position: relative;
+        background: #1a1a1a;
+        overflow: hidden;
+    }
+
+    .animated-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+        opacity: 0.8;
+    }
+
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .hero-title {
+        font-size: 4.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: white;
+        color: #1a1a1a;
+    }
+
+    .btn-secondary {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 8rem 2rem;
+        background: #fff;
+    }
+
+    .section-tag {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .feature-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    /* Stats Section */
+    .stats-section {
+        padding: 6rem 2rem;
+        background: url('{% static "images/stats-bg.jpg" %}') center/cover fixed;
+        position: relative;
+        color: white;
+    }
+
+    .stats-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(52, 152, 219, 0.9);
+    }
+
+    .stats-container {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Timeline Section */
+    .timeline-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        position: relative;
+    }
+
+    .timeline-step {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        opacity: 0;
+        transform: translateX(-50px);
+        transition: all 0.6s ease;
+    }
+
+    .timeline-step.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .step-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #3498db;
+        flex-shrink: 0;
+    }
+
+    /* Animations */
+    .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+
+    .reveal-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .timeline-step {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    /* Header Styles */
+    .main-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 5%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .logo {
+        height: 40px;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .nav-link {
+        color: #2c3e50;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #3498db;
+    }
+
+    .nav-link.active {
+        color: #3498db;
+    }
+
+    .nav-auth {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline {
+        border: 2px solid #3498db;
+        color: #3498db;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+        border: none;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Footer Styles */
+    .main-footer {
+        background: #2c3e50;
+        color: white;
+        padding: 4rem 5% 1rem;
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .footer-section h3 {
+        color: #3498db;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .social-links a {
+        color: white;
+        font-size: 1.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+        color: #3498db;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 0.8rem;
+    }
+
+    .footer-section ul a {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .footer-section ul a:hover {
+        color: #3498db;
+    }
+
+    .contact-info li {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .newsletter-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .newsletter-form input {
+        padding: 0.8rem;
+        border-radius: 25px;
+        border: none;
+        flex-grow: 1;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Mobile Menu */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: #2c3e50;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .nav-links, .nav-auth {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            display: block;
+        }
+
+        .nav-links.active {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    }
+</style>
+
+<script>
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
+
+    // Animated counter for statistics
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const numbers = entry.target.querySelectorAll('.stat-number');
+                numbers.forEach(number => {
+                    const target = parseInt(number.getAttribute('data-target'));
+                    animateValue(number, 0, target, 2000);
+                });
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.stats-container').forEach((el) => statsObserver.observe(el));
+
+    // Mobile menu toggle
+    document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('.main-header');
+        if (window.scrollY > 50) {
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+            header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        } else {
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+            header.style.boxShadow = 'none';
+        }
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

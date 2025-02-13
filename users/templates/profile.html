@@ -1,0 +1,468 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Information Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h5><i class="fas fa-user-circle"></i> Profile Information</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Profile Picture Section -->
+                <div class="profile-picture-section">
+                    <div class="profile-picture-container">
+                        {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-img">
+                        {% else %}
+                            <img src="{% static 'images/default-avatar.png' %}" alt="Default Profile" class="profile-img">
+                        {% endif %}
+                        <div class="picture-overlay">
+                            <label for="profilePicture" class="change-picture-btn">
+                                <i class="fas fa-camera"></i>
+                                Change Picture
+                            </label>
+                        </div>
+                    </div>
+                    <input type="file" id="profilePicture" name="profile_picture" accept="image/*" class="hidden-input">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        <input type="text" class="form-control" id="firstName" value="{{ profile.user.first_name }}" name="first_name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        <input type="text" class="form-control" id="lastName" value="{{ profile.user.last_name }}" name="last_name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input type="email" class="form-control" id="email" value="{{ profile.user.email }}" name="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        <i class="fas fa-phone"></i> Phone Number
+                    </label>
+                    <input type="tel" class="form-control" id="phone" value="{{ profile.phone_number }}" name="phone_number">
+                </div>
+
+                <div class="form-group">
+                    <label for="education">
+                        <i class="fas fa-graduation-cap"></i> Education Level
+                    </label>
+                    <select class="form-control" id="education" name="education">
+                        <option value="high_school" {% if profile.education == 'high_school' %}selected{% endif %}>High School</option>
+                        <option value="bachelors" {% if profile.education == 'bachelors' %}selected{% endif %}>Bachelor's Degree</option>
+                        <option value="masters" {% if profile.education == 'masters' %}selected{% endif %}>Master's Degree</option>
+                        <option value="phd" {% if profile.education == 'phd' %}selected{% endif %}>PhD</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">
+                        <i class="fas fa-info-circle"></i> Bio
+                    </label>
+                    <textarea class="form-control" id="bio" name="bio" rows="4">{{ profile.bio }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="interests">
+                        <i class="fas fa-star"></i> Interests
+                    </label>
+                    <input type="text" class="form-control" id="interests" value="{{ profile.interests }}" name="interests" placeholder="e.g., Mathematics, Physics, Programming">
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h5><i class="fas fa-lock"></i> Change Password</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'user_change_password' %}">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="currentPassword">
+                            <i class="fas fa-key"></i> Current Password
+                        </label>
+                        <input type="password" 
+                               class="form-control" 
+                               id="currentPassword" 
+                               name="current_password" 
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">
+                            <i class="fas fa-lock"></i> New Password
+                        </label>
+                        <input type="password" 
+                               class="form-control" 
+                               id="newPassword" 
+                               name="new_password" 
+                               required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        <i class="fas fa-check-circle"></i> Confirm New Password
+                    </label>
+                    <input type="password" 
+                           class="form-control" 
+                           id="confirmPassword" 
+                           name="confirm_password" 
+                           required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Change Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="stats-card">
+        <div class="card-header">
+            <h5><i class="fas fa-chart-bar"></i> Your Statistics</h5>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <i class="fas fa-file-alt"></i>
+                <h3>{{ total_exams }}</h3>
+                <p>Total Exams</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-trophy"></i>
+                <h3>{{ passed_exams }}</h3>
+                <p>Passed Exams</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-star"></i>
+                <h3>{{ average_score }}%</h3>
+                <p>Average Score</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <h3>{{ total_time_spent }}h</h3>
+                <p>Time Spent</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-card, .stats-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+}
+
+.card-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+}
+
+.stat-item i {
+    font-size: 2rem;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.stat-item h3 {
+    margin: 10px 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+}
+
+.stat-item p {
+    color: #64748b;
+    margin: 0;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Add these new styles for profile picture */
+.profile-picture-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-picture-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.picture-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    padding: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-picture-container:hover .picture-overlay {
+    opacity: 1;
+}
+
+.change-picture-btn {
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.hidden-input {
+    display: none;
+}
+
+/* Password strength indicator styles */
+.password-strength {
+    margin-top: 5px;
+    height: 5px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.password-strength.weak {
+    background: #ff4d4d;
+    width: 33%;
+}
+
+.password-strength.medium {
+    background: #ffd700;
+    width: 66%;
+}
+
+.password-strength.strong {
+    background: #00cc00;
+    width: 100%;
+}
+
+/* Password requirements list */
+.password-requirements {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 5px 0;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 3px;
+}
+
+.password-requirements li i {
+    font-size: 0.8rem;
+}
+
+.requirement-met {
+    color: #00cc00;
+}
+
+.requirement-not-met {
+    color: #ff4d4d;
+}
+</style>
+
+<script>
+document.getElementById('profilePicture').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelector('.profile-img').src = e.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+// Password strength checker
+document.getElementById('newPassword').addEventListener('input', function(e) {
+    const password = e.target.value;
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*]/.test(password)
+    };
+    
+    // Update requirements list
+    const requirementsList = document.querySelector('.password-requirements ul');
+    if (requirementsList) {
+        requirementsList.innerHTML = `
+            <li class="${requirements.length ? 'requirement-met' : 'requirement-not-met'}">
+                <i class="fas ${requirements.length ? 'fa-check' : 'fa-times'}"></i>
+                At least 8 characters
+            </li>
+            <li class="${requirements.uppercase ? 'requirement-met' : 'requirement-not-met'}">
+                <i class="fas ${requirements.uppercase ? 'fa-check' : 'fa-times'}"></i>
+                One uppercase letter
+            </li>
+            <li class="${requirements.lowercase ? 'requirement-met' : 'requirement-not-met'}">
+                <i class="fas ${requirements.lowercase ? 'fa-check' : 'fa-times'}"></i>
+                One lowercase letter
+            </li>
+            <li class="${requirements.number ? 'requirement-met' : 'requirement-not-met'}">
+                <i class="fas ${requirements.number ? 'fa-check' : 'fa-times'}"></i>
+                One number
+            </li>
+            <li class="${requirements.special ? 'requirement-met' : 'requirement-not-met'}">
+                <i class="fas ${requirements.special ? 'fa-check' : 'fa-times'}"></i>
+                One special character
+            </li>
+        `;
+    }
+});
+
+// Confirm password checker
+document.getElementById('confirmPassword').addEventListener('input', function(e) {
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = e.target.value;
+    
+    if (confirmPassword && newPassword !== confirmPassword) {
+        e.target.setCustomValidity("Passwords don't match");
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}
