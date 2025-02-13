@@ -1,0 +1,285 @@
+{% load bootstrap5 %}
+{% load static %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-picture {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f8fafc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Navigation Menu */
+        .nav-link {
+            padding: 0.8rem 1rem;
+            color: #2c3e50;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover {
+            background: #f8fafc;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: white;
+            border-radius: 20px 0 0 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        /* Your existing styles */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Keep your existing styles */
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Keep other existing styles */
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Dashboard</h4>
+                <a href="{% url 'signout' %}" class="text-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{profile.profile_picture.url}}" alt="Profile" class="profile-picture">
+                    <div>
+                        <h5 class="mb-1">{{ request.user.username }}</h5>
+                        <span class="status-badge">Teacher Portal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="nav flex-column">
+                <div class="section-title">Dashboard</div>
+                <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{% url 'teacher_profile' %}" class="nav-link">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+
+                <div class="section-title">Exam Management</div>
+                <a href="{% url 'create_exam' %}" class="nav-link active">
+                    <i class="fas fa-plus-circle"></i> Create New Exam
+                </a>
+                <a href="{% url 'teacher_exams_lists' %}" class="nav-link">
+                    <i class="fas fa-list"></i> View All Exams
+                </a>
+
+                <div class="section-title">Result and Analytics</div>
+                <a href="{% url 'performance_overview' %}" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Student Performance
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Your existing content -->
+            {% block content %}
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white border-0">
+                                <h2 class="card-title mb-0">Create New Exam</h2>
+                            </div>
+                            
+                            <div class="card-body">
+                                <form method="post" id="examForm">
+                                    {% csrf_token %}
+                                    
+                                    <!-- Exam Details Card -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light border-0">
+                                            <h4 class="mb-0"><i class="fas fa-file-alt me-2"></i>Exam Details</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            {% for field in form %}
+                                                <div class="mb-3">
+                                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                                        {{ field.label }}
+                                                    </label>
+                                                    {{ field }}
+                                                    {% if field.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ field.errors.0 }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Grading Intervals Card -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Grading Intervals</h4>
+                                            <button type="button" class="btn btn-primary" id="addInterval">
+                                                <i class="fas fa-plus me-2"></i>Add Interval
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            {{ formset.management_form }}
+                                            <div id="intervalForms">
+                                                {% for interval_form in formset %}
+                                                    <div class="interval-form mb-3 p-3 border rounded bg-light">
+                                                        <div class="row align-items-end">
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-bold">Grade</label>
+                                                                {{ interval_form.grade }}
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-bold">Min Score</label>
+                                                                {{ interval_form.min_score }}
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label fw-bold">Max Score</label>
+                                                                {{ interval_form.max_score }}
+                                                            </div>
+                                                            <div class="col-md-5">
+                                                                <label class="form-label fw-bold">Description</label>
+                                                                {{ interval_form.description }}
+                                                            </div>
+                                                            <div class="col-md-1">
+                                                                <button type="button" class="btn btn-danger remove-interval">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save me-2"></i>Create Exam
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Keep your existing JavaScript -->
+</body>
+</html>

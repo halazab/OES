@@ -1,0 +1,444 @@
+{% load bootstrap5 %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-image">
+            <h5 class="mb-1">{{ request.user.get_full_name }}</h5>
+            <p class="text-muted mb-0">Teacher</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-title">DASHBOARD</div>
+        <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+
+        <div class="section-title">EXAM MANAGEMENT</div>
+        <a href="{% url 'create_exam' %}" class="nav-link">
+            <i class="fas fa-plus-circle"></i> Create Exam
+        </a>
+        <a href="{% url 'teacher_exams_lists' %}" class="nav-link">
+            <i class="fas fa-list"></i> View Exams
+        </a>
+
+        <div class="section-title">STUDENT MANAGEMENT</div>
+        <a href="{% url 'student_management' %}" class="nav-link">
+            <i class="fas fa-users"></i> Manage Students
+        </a>
+
+        <div class="section-title">REPORTS & ANALYTICS</div>
+        <a href="{% url 'student_analytics' %}" class="nav-link active">
+            <i class="fas fa-chart-bar"></i> Analytics
+        </a>
+        <a href="{% url 'generate_report' %}" class="nav-link">
+            <i class="fas fa-file-export"></i> Export Reports
+        </a>
+
+        <div class="section-title">SETTINGS & TOOLS</div>
+        <a href="{% url 'signout' %}" class="nav-link text-danger">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid py-4">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Analytics Dashboard</h2>
+                    <p class="text-muted">View exam statistics and performance metrics</p>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Exams</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ exams.count }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Total Students</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Analytics -->
+            <div class="row">
+                {% for exam in exams %}
+                <div class="col-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">{{ exam.title }}</h6>
+                            <div class="dropdown">
+                                <button class="btn btn-link" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="{% url 'exam_questions' exam.id %}">
+                                        <i class="fas fa-list fa-sm fa-fw mr-2"></i>
+                                        View Questions
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-download fa-sm fa-fw mr-2"></i>
+                                        Export Results
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="mb-1">{{ exam.average_score|floatformat:1 }}%</h3>
+                                            <div class="text-muted small">Average Score</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="mb-1">{{ exam.highest_score|floatformat:1 }}%</h3>
+                                            <div class="text-muted small">Highest Score</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="mb-1">{{ exam.question_count }}</h3>
+                                            <div class="text-muted small">Questions</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="mb-1">{{ exam.completion_rate|floatformat:1 }}%</h3>
+                                            <div class="text-muted small">Completion Rate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Grade Distribution with counts -->
+                            <h6 class="font-weight-bold mb-3">Grade Distribution</h6>
+                            <div class="row">
+                                {% for interval in exam.grade_intervals %}
+                                <div class="col-md-3 mb-3">
+                                    <div class="card border-left-{{ interval.grade|lower }} shadow h-100">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-{{ interval.grade|lower }} text-uppercase mb-1">
+                                                        Grade {{ interval.grade }}</div>
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                        {{ interval.min_score }}-{{ interval.max_score }}%
+                                                    </div>
+                                                    <div class="text-muted small">
+                                                        {{ interval.description }} ({{ interval.count }} students)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">No Exams Available</h4>
+                        <p class="mb-0">You haven't created any exams yet. Start by creating your first exam to see analytics.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    body {
+        min-height: 100vh;
+        background: #f8fafc;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding: 1.5rem;
+        overflow-y: auto;
+    }
+
+    /* Profile Section */
+    .profile-section {
+        text-align: center;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+    }
+
+    /* Navigation Links */
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: #4b5563;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background: #f3f4f6;
+        color: #1f2937;
+    }
+
+    .nav-link.active {
+        background: #667eea;
+        color: white;
+    }
+
+    .nav-link i {
+        width: 20px;
+        margin-right: 0.75rem;
+    }
+
+    /* Section Title */
+    .section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 0.75rem;
+        padding: 0 1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+    }
+
+    /* Card Styles */
+    .card {
+        border: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease-in-out;
+        margin-bottom: 1rem;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem;
+    }
+
+    /* Analytics Specific Styles */
+    .border-left-primary { border-left: 4px solid #4e73df; }
+    .border-left-success { border-left: 4px solid #1cc88a; }
+    .border-left-info { border-left: 4px solid #36b9cc; }
+    .border-left-warning { border-left: 4px solid #f6c23e; }
+    .border-left-danger { border-left: 4px solid #e74a3b; }
+    
+    /* Grade Colors */
+    .border-left-a { border-left: 4px solid #4e73df; }
+    .border-left-b { border-left: 4px solid #1cc88a; }
+    .border-left-c { border-left: 4px solid #f6c23e; }
+    .border-left-d { border-left: 4px solid #858796; }
+    .border-left-f { border-left: 4px solid #e74a3b; }
+
+    .text-a { color: #4e73df; }
+    .text-b { color: #1cc88a; }
+    .text-c { color: #f6c23e; }
+    .text-d { color: #858796; }
+    .text-f { color: #e74a3b; }
+
+    /* Stats Cards */
+    .stats-card {
+        background: #fff;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+
+    .stats-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card .text-muted {
+        font-size: 0.875rem;
+    }
+
+    /* Grade Distribution Cards */
+    .grade-card {
+        padding: 1rem;
+        height: 100%;
+    }
+
+    .grade-card .text-xs {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .grade-card .h5 {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        color: #4b5563;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f3f4f6;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .col-md-3 {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Additional Utility Classes */
+    .text-xs {
+        font-size: .7rem;
+    }
+
+    .font-weight-bold {
+        font-weight: 600;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    /* Animation */
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .nav-link {
+        transition: all 0.2s ease;
+    }
+
+    /* Custom Scrollbar */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    // Initialize dropdowns
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl)
+    })
+</script>
+{% endblock %}
+{% endblock %}

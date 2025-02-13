@@ -1,0 +1,372 @@
+{% load static %}
+{% load bootstrap5 %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        /* Card Styles */
+        .student-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background-color: #48bb78;
+        }
+
+        .status-blocked {
+            background-color: #f56565;
+        }
+
+        /* Table Styles */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #4b5563;
+            border-bottom-width: 1px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        /* Button Styles */
+        .btn-group .btn {
+            padding: 0.375rem 0.75rem;
+        }
+
+        /* Modal Styles */
+        .modal-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+            color: #1f2937;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-image">
+                <h5 class="mb-1">{{ request.user.get_full_name }}</h5>
+                <p class="text-muted mb-0">Teacher</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="section-title">DASHBOARD</div>
+            <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+
+            <div class="section-title">EXAM MANAGEMENT</div>
+            <a href="{% url 'create_exam' %}" class="nav-link">
+                <i class="fas fa-plus-circle"></i> Create Exam
+            </a>
+            <a href="{% url 'teacher_exams_lists' %}" class="nav-link">
+                <i class="fas fa-list"></i> View Exams
+            </a>
+
+            <div class="section-title">STUDENT MANAGEMENT</div>
+            <a href="{% url 'student_management' %}" class="nav-link active">
+                <i class="fas fa-users"></i> Manage Students
+            </a>
+
+            <div class="section-title">REPORTS & ANALYTICS</div>
+        
+            <a href="{% url 'generate_report' %}" class="nav-link">
+                <i class="fas fa-file-export"></i> Export Reports
+            </a>
+
+            <div class="section-title">SETTINGS & TOOLS</div>
+            
+            <a href="{% url 'signout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-2">Student Management</h1>
+                        <p class="text-muted">Manage student access and permissions</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                            <i class="fas fa-plus me-2"></i>Add Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <input type="text" name="search" class="form-control" placeholder="Search by name or email" value="{{ request.GET.search }}">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="status" class="form-select">
+                                    <option value="">All Status</option>
+                                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="blocked" {% if request.GET.status == 'blocked' %}selected{% endif %}>Blocked</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Students Table -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Exams Taken</th>
+                                        <th>Last Active</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.get_full_name }}</td>
+                                        <td>{{ student.email }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill {% if student.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                                {% if student.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ student.result_set.count }}</td>
+                                        <td>{{ student.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
+                                        <td>
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <button class="btn btn-light btn-sm" onclick="viewStudent({{ student.id }})">
+                                                    <i class="fas fa-eye text-primary"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm" onclick="toggleStatus({{ student.id }})">
+                                                    <i class="fas fa-ban text-danger"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm" onclick="resetProgress({{ student.id }})">
+                                                    <i class="fas fa-redo text-info"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">No students found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Student Modal -->
+    <div class="modal fade" id="viewStudentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Student Activity Log</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="studentDetailsContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function viewStudent(studentId) {
+        // Show loading state
+        const modal = new bootstrap.Modal(document.getElementById('viewStudentModal'));
+        const contentDiv = document.getElementById('studentDetailsContent');
+        contentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+        modal.show();
+
+        // Fetch student activity log
+        fetch(`/teacher/student/${studentId}/activity-log/`)
+            .then(response => response.text())  // Change to text() since we're expecting HTML
+            .then(html => {
+                contentDiv.innerHTML = html;
+            })
+            .catch(error => {
+                contentDiv.innerHTML = '<div class="alert alert-danger">Error loading student activity log</div>';
+            });
+    }
+
+    // Add these functions for the other buttons if needed
+    function toggleStatus(studentId) {
+        if (confirm('Are you sure you want to change this student\'s status?')) {
+            fetch(`/teacher/student/${studentId}/toggle-status/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function resetProgress(studentId) {
+        if (confirm('Are you sure you want to reset this student\'s progress? This action cannot be undone.')) {
+            fetch(`/teacher/student/${studentId}/reset-progress/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+</body>
+</html>

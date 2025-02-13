@@ -1,0 +1,354 @@
+{% load static %}
+{% load bootstrap5 %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Activity Log</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: white;
+            border-radius: 20px 0 0 20px;
+        }
+
+        /* Activity Log Styles */
+        .activity-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .activity-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #667eea;
+        }
+
+        .activity-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .activity-time {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .filter-section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <img src="{{profile.profile_picture.url}}" alt="Profile" class="profile-image">
+                <h5 class="mb-1">{{ request.user.get_full_name }}</h5>
+                <p class="text-muted mb-0">Teacher</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="section-title">DASHBOARD</div>
+            <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+
+            <div class="section-title">EXAM MANAGEMENT</div>
+            <a href="{% url 'create_exam' %}" class="nav-link">
+                <i class="fas fa-plus-circle"></i> Create Exam
+            </a>
+            <a href="{% url 'exam_list' %}" class="nav-link">
+                <i class="fas fa-list"></i> View Exams
+            </a>
+
+            <div class="section-title">STUDENT MANAGEMENT</div>
+            <a href="{% url 'student_management' %}" class="nav-link active">
+                <i class="fas fa-users"></i> Manage Students
+            </a>
+
+            <div class="section-title">REPORTS & ANALYTICS</div>
+           
+            <a href="{% url 'generate_report' %}" class="nav-link">
+                <i class="fas fa-file-export"></i> Export Reports
+            </a>
+
+            <div class="section-title">SETTINGS & TOOLS</div>
+            
+            <a href="{% url 'signout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <!-- Header Section -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1">Activity Log</h2>
+                        <p class="text-muted mb-0">
+                            Student: {{ student.get_full_name }}
+                        </p>
+                    </div>
+                    <a href="{% url 'student_management' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Student List
+                    </a>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section mb-4">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Activity Type</label>
+                            <select name="activity_type" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Activities</option>
+                                {% for type, label in activity_types %}
+                                <option value="{{ type }}" {% if selected_type == type %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date Range</label>
+                            <select name="date_range" class="form-select" onchange="this.form.submit()">
+                                <option value="7" {% if date_range == '7' %}selected{% endif %}>Last 7 Days</option>
+                                <option value="30" {% if date_range == '30' %}selected{% endif %}>Last 30 Days</option>
+                                <option value="90" {% if date_range == '90' %}selected{% endif %}>Last 90 Days</option>
+                                <option value="all" {% if date_range == 'all' %}selected{% endif %}>All Time</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Student Information -->
+                <div class="student-info mb-4">
+                    <h6 class="mb-3">Student Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ student.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ student.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Status:</strong> 
+                                <span class="badge {% if student.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if student.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </p>
+                            <p><strong>Last Active:</strong> {{ student.last_login|date:"M d, Y H:i"|default:"Never" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="activity-log">
+                    <h6 class="mb-3">Activity Log</h6>
+                    {% if activities %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Activity</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activity in activities %}
+                                    <tr>
+                                        <td>{{ activity.created_at|date:"M d, Y H:i" }}</td>
+                                        <td>{{ activity.activity_type }}</td>
+                                        <td>{{ activity.details }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">No activity recorded yet.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="activity-timeline">
+                            {% for activity in activities %}
+                            <div class="activity-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="activity-badge bg-{{ activity.get_badge_color }}">
+                                            {{ activity.get_activity_type_display }}
+                                        </span>
+                                        {% if activity.exam %}
+                                        <span class="ms-2 text-muted">
+                                            - {{ activity.exam.title }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="activity-time">
+                                        {{ activity.created_at|date:"M d, Y H:i" }}
+                                    </span>
+                                </div>
+                                <p class="mt-2 mb-0">{{ activity.description }}</p>
+                                {% if activity.performed_by %}
+                                <small class="text-muted">
+                                    Action by: {{ activity.performed_by.get_full_name }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">No activities found</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if activities.has_other_pages %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if activities.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.previous_page_number }}{% if selected_type %}&activity_type={{ selected_type }}{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}">
+                                Previous
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in activities.paginator.page_range %}
+                        <li class="page-item {% if activities.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if selected_type %}&activity_type={{ selected_type }}{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endfor %}
+
+                        {% if activities.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.next_page_number }}{% if selected_type %}&activity_type={{ selected_type }}{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

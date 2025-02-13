@@ -1,0 +1,283 @@
+{% load static %}
+{% load bootstrap5 %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: white;
+            border-radius: 20px 0 0 20px;
+        }
+
+        /* Profile Card Styles */
+        .profile-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <img src="{{ profile.profile_picture.url|default:'static/images/profile.png' }}" alt="Profile" class="profile-image">
+                <h5 class="mb-1">{{ request.user.get_full_name }}</h5>
+                <p class="text-muted mb-0">Teacher</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="section-title">DASHBOARD</div>
+            <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+
+            <div class="section-title">EXAM MANAGEMENT</div>
+            <a href="{% url 'create_exam' %}" class="nav-link">
+                <i class="fas fa-plus-circle"></i> Create Exam
+            </a>
+            <a href="{% url 'teacher_exams_lists' %}" class="nav-link">
+                <i class="fas fa-list"></i> View Exams
+            </a>
+
+            <div class="section-title">STUDENT MANAGEMENT</div>
+            <a href="{% url 'student_management' %}" class="nav-link">
+                <i class="fas fa-users"></i> Manage Students
+            </a>
+
+            <div class="section-title">REPORTS & ANALYTICS</div>
+           
+
+            <div class="section-title">PROFILE</div>
+            <a href="{% url 'teacher_profile' %}" class="nav-link active">
+                <i class="fas fa-user"></i> My Profile
+            </a>
+
+            <a href="{% url 'signout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <img src="{{ profile.profile_picture.url|default:'static/images/profile.png' }}" 
+                             alt="Profile Picture" class="profile-avatar">
+                    </div>
+                    <div class="col">
+                        <h2 class="mb-1">{{ profile.user.get_full_name }}</h2>
+                        <p class="mb-0">{{ profile.user.email }}</p>
+                        <span class="badge bg-light text-dark mt-2">Teacher</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="row">
+                <!-- Personal Information -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Personal Information</h5>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">First Name</label>
+                                        <input type="text" class="form-control" name="first_name" 
+                                               value="{{ profile.user.first_name }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" name="last_name" 
+                                               value="{{ profile.user.last_name }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" 
+                                           value="{{ profile.user.email }}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Profile Picture</label>
+                                    <input type="file" class="form-control" name="profile_picture">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Bio</label>
+                                    <textarea class="form-control" name="bio" rows="3">{{ profile.bio }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="col-md-4">
+                    <div class="stats-card mb-4">
+                        <h6 class="text-muted mb-4">Quick Statistics</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Total Exams</span>
+                            <span class="badge bg-primary">{{ total_exams }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Active Students</span>
+                            <span class="badge bg-success">{{ total_students }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Average Pass Rate</span>
+                            <span class="badge bg-info">{{ average_pass_rate }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- Change Password Card -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Change Password</h5>
+                            <form method="post" action="{% url 'teacher_change_password' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" name="current_password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" name="new_password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" name="confirm_password" required>
+                                </div>
+                                <button type="submit" class="btn btn-secondary w-100">Change Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

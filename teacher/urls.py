@@ -1,0 +1,30 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('teacher/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('teacher/exam/create/', views.create_exam, name='create_exam'),
+    path('teacher/exam/<int:exam_id>/questions/', views.exam_questions, name='exam_questions'),
+    path('teacher/exam/<int:exam_id>/questions/add/', views.add_questions, name='add_questions'),
+    path('teacher/question/<int:question_id>/edit/', views.edit_question, name='edit_question'),
+    path('teacher/question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
+    path('teacher/exam/<int:exam_id>/results/', views.exam_results, name='exam_results'),
+    path('teacher/exams/lists', views.exam_list, name='teacher_exams_lists'),
+    path('teacher/performance/', views.student_performance, name='performance_overview'),
+    path('teacher/performance/<int:exam_id>/', views.student_performance, name='student_performance'),
+    #path('student-analytics/', views.analytics, name='student_analytics'),
+    path('generate-report/', views.generate_report, name='generate_report'),
+    path('student-management/', views.student_management, name='student_management'),
+    path('student/add/', views.add_student, name='add_student'),
+    path('student/<int:student_id>/toggle-status/', views.toggle_student_status, name='toggle_student_status'),
+    path('student/<int:student_id>/reset-progress/', views.reset_student_progress, name='reset_student_progress'),
+    path('block-student/<int:student_id>/', views.block_student, name='block_student'),
+    path('unblock-student/<int:student_id>/', views.unblock_student, name='unblock_student'),
+    path('block-exam-access/<int:student_id>/<int:exam_id>/', views.block_exam_access, name='block_exam_access'),
+    path('unblock-exam-access/<int:student_id>/<int:exam_id>/', views.unblock_exam_access, name='unblock_exam_access'),
+    path('student-details/<int:student_id>/', views.student_details, name='student_details'),
+    path('teacher/student/<int:student_id>/activity-log/', views.student_activity_log, name='student_activity_log'),
+    path('teacher/profile/', views.teacher_profile, name='teacher_profile'),
+    path('teacher/change-password/', views.change_password, name='teacher_change_password'),
+    path('teacher/login/', views.signin, name='teacher_login'),
+]

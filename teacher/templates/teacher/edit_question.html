@@ -1,0 +1,342 @@
+{% load bootstrap5 %}
+{% load static %}
+{%bootstrap_css%}
+{%bootstrap_javascript%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Question</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-picture {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f8fafc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Navigation Menu */
+        .nav-link {
+            padding: 0.8rem 1rem;
+            color: #2c3e50;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover {
+            background: #f8fafc;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            width: 20px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: white;
+            border-radius: 20px 0 0 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        /* Form Styles */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #718096, #4a5568);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .preview-section {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .option-preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .option-preview:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Dashboard</h4>
+                <a href="{% url 'signout' %}" class="text-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{profile.profile_picture.url}}" alt="Profile" class="profile-picture">
+                    <div>
+                        <h5 class="mb-1">{{ request.user.username }}</h5>
+                        <span class="status-badge">Teacher Portal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="nav flex-column">
+                <div class="section-title">Dashboard</div>
+                <a href="{% url 'teacher_dashboard' %}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{% url 'teacher_profile' %}" class="nav-link">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+
+                <div class="section-title">Exam Management</div>
+                <a href="{% url 'create_exam' %}" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Create New Exam
+                </a>
+                <a href="{% url 'teacher_exams_lists' %}" class="nav-link">
+                    <i class="fas fa-list"></i> View All Exams
+                </a>
+
+                <div class="section-title">Results & Analytics</div>
+                <a href="{% url 'performance_overview' %}" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Student Performance
+                </a>
+                
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-2">Edit Question</h1>
+                        <p class="text-muted mb-0">{{ exam.title }}</p>
+                    </div>
+                    <a href="{% url 'exam_questions' exam.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Questions
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    
+                                    <!-- Question Details -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light border-0">
+                                            <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Question Details</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="id_text" class="form-label fw-bold">Question Text</label>
+                                                {{ form.text.errors }}
+                                                <textarea class="form-control" id="id_text" name="text" rows="3" required>{{ form.text.value }}</textarea>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="id_question_type" class="form-label fw-bold">Question Type</label>
+                                                {{ form.question_type.errors }}
+                                                <select class="form-select" id="id_question_type" name="question_type" required>
+                                                    <option value="MCQ" {% if form.question_type.value == 'MCQ' %}selected{% endif %}>Multiple Choice</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Options -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light border-0">
+                                            <h4 class="mb-0"><i class="fas fa-list-ol me-2"></i>Options</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="id_option_a" class="form-label fw-bold">Option A</label>
+                                                    {{ form.option_a.errors }}
+                                                    <input type="text" class="form-control" id="id_option_a" name="option_a" 
+                                                           value="{{ form.option_a.value }}" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="id_option_b" class="form-label fw-bold">Option B</label>
+                                                    {{ form.option_b.errors }}
+                                                    <input type="text" class="form-control" id="id_option_b" name="option_b" 
+                                                           value="{{ form.option_b.value }}" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="id_option_c" class="form-label fw-bold">Option C</label>
+                                                    {{ form.option_c.errors }}
+                                                    <input type="text" class="form-control" id="id_option_c" name="option_c" 
+                                                           value="{{ form.option_c.value }}" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="id_option_d" class="form-label fw-bold">Option D</label>
+                                                    {{ form.option_d.errors }}
+                                                    <input type="text" class="form-control" id="id_option_d" name="option_d" 
+                                                           value="{{ form.option_d.value }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Correct Answer -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-light border-0">
+                                            <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Correct Answer</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            {{ form.correct_answer.errors }}
+                                            <select class="form-select" id="id_correct_answer" name="correct_answer" required>
+                                                <option value="">Select correct answer</option>
+                                                <option value="option_a" {% if form.correct_answer.value == 'option_a' %}selected{% endif %}>Option A</option>
+                                                <option value="option_b" {% if form.correct_answer.value == 'option_b' %}selected{% endif %}>Option B</option>
+                                                <option value="option_c" {% if form.correct_answer.value == 'option_c' %}selected{% endif %}>Option C</option>
+                                                <option value="option_d" {% if form.correct_answer.value == 'option_d' %}selected{% endif %}>Option D</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'exam_questions' exam.id %}" class="btn btn-secondary">
+                                            <i class="fas fa-times me-2"></i>Cancel
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Save Changes
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light border-0">
+                                <h4 class="mb-0"><i class="fas fa-eye me-2"></i>Preview</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="questionPreview" class="preview-section">
+                                    <p class="question-text mb-4">{{ form.text.value }}</p>
+                                    <div class="options-preview">
+                                        <div class="option-preview mb-3 p-2 rounded">A) {{ form.option_a.value }}</div>
+                                        <div class="option-preview mb-3 p-2 rounded">B) {{ form.option_b.value }}</div>
+                                        <div class="option-preview mb-3 p-2 rounded">C) {{ form.option_c.value }}</div>
+                                        <div class="option-preview mb-3 p-2 rounded">D) {{ form.option_d.value }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
