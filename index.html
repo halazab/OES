@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Examination System - Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e83e8c;
+        }
+        .navbar {
+            background-color: #2c3e50;
+        }
+        .navbar-brand {
+            color: white !important;
+        }
+        .download-btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Online Examination System</span>
+            <a href="https://github.com/halazab/oes" class="btn btn-outline-light">View on GitHub</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="card">
+            <div class="card-body">
+                <h1>Welcome to Online Examination System</h1>
+                <p class="lead">A comprehensive solution for managing online examinations, assessments, and student evaluations.</p>
+                <a href="https://github.com/halazab/oes/archive/refs/heads/main.zip" class="btn btn-primary download-btn">
+                    Download Latest Version
+                </a>
+            </div>
+        </div>
+
+        <!-- System Requirements -->
+        <div class="card">
+            <div class="card-header">
+                <h2>System Requirements</h2>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Python 3.x</li>
+                    <li>Django 4.2</li>
+                    <li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                    <li>Internet connection</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Key Features</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4>For Teachers</h4>
+                        <ul>
+                            <li>Create & manage exams</li>
+                            <li>Question bank</li>
+                            <li>Student performance tracking</li>
+                            <li>Automated grading</li>
+                            <li>Export results</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>For Students</h4>
+                        <ul>
+                            <li>Take online exams</li>
+                            <li>View results instantly</li>
+                            <li>Performance analytics</li>
+                            <li>Progress tracking</li>
+                            <li>Download certificates</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>For Administrators</h4>
+                        <ul>
+                            <li>User management</li>
+                            <li>System monitoring</li>
+                            <li>Payment tracking</li>
+                            <li>Generate reports</li>
+                            <li>System configuration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Installation -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Quick Installation Guide</h2>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Download the project files</li>
+                    <li>Extract the ZIP file</li>
+                    <li>Open terminal/command prompt in the project directory</li>
+                    <li>Create a virtual environment:
+                        <br>
+                        <code>python -m venv venv</code>
+                    </li>
+                    <li>Activate the virtual environment:
+                        <br>
+                        <code>source venv/bin/activate</code> (Linux/Mac)
+                        <br>
+                        <code>venv\Scripts\activate</code> (Windows)
+                    </li>
+                    <li>Install requirements:
+                        <br>
+                        <code>pip install -r requirements.txt</code>
+                    </li>
+                    <li>Run migrations:
+                        <br>
+                        <code>python manage.py migrate</code>
+                    </li>
+                    <li>Create superuser:
+                        <br>
+                        <code>python manage.py createsuperuser</code>
+                    </li>
+                    <li>Start the development server:
+                        <br>
+                        <code>python manage.py runserver</code>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Default Logins -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Default Login Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4>Admin Login</h4>
+                        <p>URL: /admin</p>
+                        <p>Use the superuser credentials you created during installation</p>
+                    </div>
+                 
+                    <div class="col-md-4">
+                        <h4>Student Login</h4>
+                        <p>URL: <code>/login/</code></p>
+                        <p>Register a new student account after installation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Support</h2>
+            </div>
+            <div class="card-body">
+                <p>For technical support or questions:</p>
+                <ul>
+                    <li>Create an issue on <a href="https://github.com/halazab/oes/issues">GitHub</a></li>
+                    <li>Email: halazab29@gmail.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-4">
+            <p>© 2025 Online Examination System. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
