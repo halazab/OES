@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,7 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'signin'
-CHAPA_WEBHOOK_URL = 'http://localhost:8000/chapa/webhook/'  
+CHAPA_WEBHOOK_URL = 'https://oes-nk2r.onrender.com/chapa/webhook/'  
 CHAPA_API_URL = ''
 CHAPA_API_VERSION = ''
 CHAPA_TRANSACTION_MODEL = 'exams.chapa_model'
@@ -133,6 +134,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     ]
 
-BASE_URL = 'http://localhost:8000' 
+BASE_URL = 'https://oes-nk2r.onrender.com/' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
