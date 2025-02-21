@@ -200,6 +200,10 @@
                 <a href="{% url 'performance_overview' %}" class="nav-link">
                     <i class="fas fa-chart-line"></i> Student Performance
                 </a>
+                <div class="section-title">Support</div>
+                <a href="{% url 'admin_support' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_support' %}active{% endif %}">
+                    <i class="fas fa-headset"></i> Support Tickets
+                </a>
 
                 <div class="section-title">Settings & Tools</div>
                 <a href="{% url 'generate_report' %}" class="nav-link">
