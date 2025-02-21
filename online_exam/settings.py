@@ -134,3 +134,5 @@ STATICFILES_DIRS = [
     ]
 
 BASE_URL = 'http://localhost:8000' 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
