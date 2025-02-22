@@ -280,97 +280,67 @@
     </div>
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        let addButton = document.getElementById("addInterval"); // "Add Interval" button
-        let intervalFormsContainer = document.getElementById("intervalForms"); // Div holding the forms
-        let totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Management form (hidden input)
+        const addButton = document.getElementById("addInterval");
+        const intervalFormsContainer = document.getElementById("intervalForms");
+        const totalForms = document.getElementById("id_form-TOTAL_FORMS");
         
-        // Check if the "Add Interval" button is found
-        if (!addButton) {
-            console.error("Add Interval button not found!");
+        // Check if elements exist
+        if (!addButton || !intervalFormsContainer || !totalForms) {
+            console.error("Required elements not found!");
             return;
         }
+
+        // Function to update form indices
+        function updateFormIndices() {
+            const forms = intervalFormsContainer.getElementsByClassName("interval-form");
+            for (let i = 0; i < forms.length; i++) {
+                forms[i].querySelectorAll("input, textarea, select").forEach((input) => {
+                    input.name = input.name.replace(/form-\d+/, `form-${i}`);
+                    input.id = input.id.replace(/form-\d+/, `form-${i}`);
+                });
+            }
+            totalForms.value = forms.length;
+        }
     
-        // Add new interval form when the button is clicked
+        // Add new interval form
         addButton.addEventListener("click", function () {
-            let currentFormCount = parseInt(totalForms.value); // Get current count of forms
-            let newForm = intervalFormsContainer.children[0].cloneNode(true); // Clone the first form
+            const forms = intervalFormsContainer.getElementsByClassName("interval-form");
+            if (forms.length === 0) {
+                console.error("No template form found!");
+                return;
+            }
+
+            const newForm = forms[0].cloneNode(true);
             
-            // Update form fields
+            // Clear values in the cloned form
             newForm.querySelectorAll("input, textarea, select").forEach((input) => {
-                let name = input.getAttribute("name").replace(/\d+/, currentFormCount); // Replace number in the name
-                let id = input.getAttribute("id").replace(/\d+/, currentFormCount); // Replace number in the id
-                input.setAttribute("name", name); // Set new name
-                input.setAttribute("id", id); // Set new id
-                input.value = ""; // Clear values in the cloned form
+                input.value = "";
             });
     
-            // Append new form to the container
-            intervalFormsContainer.appendChild(newForm); 
+            intervalFormsContainer.appendChild(newForm);
+            updateFormIndices();
     
-            // Update the total form count in the management form
-            totalForms.value = currentFormCount + 1;
-    
-            // Attach remove functionality for the new form
-            let removeButton = newForm.querySelector(".remove-interval");
-            removeButton.addEventListener("click", function () {
+            // Add remove functionality to new form
+            newForm.querySelector(".remove-interval").addEventListener("click", function() {
                 newForm.remove();
-                totalForms.value = document.querySelectorAll(".interval-form").length; // Update total forms count
+                updateFormIndices();
             });
         });
     
-        // Attach remove functionality to existing forms
+        // Add remove functionality to existing forms
         document.querySelectorAll(".remove-interval").forEach((btn) => {
-            btn.addEventListener("click", function () {
-                let form = btn.closest(".interval-form"); // Find the closest form to the button
-                form.remove();
-                totalForms.value = document.querySelectorAll(".interval-form").length; // Update total forms count
+            btn.addEventListener("click", function() {
+                if (intervalFormsContainer.getElementsByClassName("interval-form").length > 1) {
+                    btn.closest(".interval-form").remove();
+                    updateFormIndices();
+                } else {
+                    alert("You must have at least one grading interval!");
+                }
             });
         });
-    }); </script>
+    });
+    </script>
     
-    {% comment %} document.addEventListener("DOMContentLoaded", function () {
-        let addButton = document.getElementById("addInterval"); // "Add Interval" button
-        let intervalFormsContainer = document.getElementById("intervalForms"); // Div holding the forms
-        let totalForms = document.getElementById("id_form-TOTAL_FORMS"); // Management form (hidden input)
-        
-        // Add new interval form when the button is clicked
-        addButton.addEventListener("click", function () {
-            let currentFormCount = parseInt(totalForms.value); // Get current count of forms
-            let newForm = intervalFormsContainer.children[0].cloneNode(true); // Clone the first form
-            
-            // Update form fields
-            newForm.querySelectorAll("input, textarea, select").forEach((input) => {
-                let name = input.getAttribute("name").replace(/\d+/, currentFormCount); // Replace number in the name
-                let id = input.getAttribute("id").replace(/\d+/, currentFormCount); // Replace number in the id
-                input.setAttribute("name", name); // Set new name
-                input.setAttribute("id", id); // Set new id
-                input.value = ""; // Clear values in the cloned form
-            });
-    
-            // Append new form to the container
-            intervalFormsContainer.appendChild(newForm); 
-    
-            // Update the total form count in the management form
-            totalForms.value = currentFormCount + 1;
-    
-            // Attach remove functionality for the new form
-            let removeButton = newForm.querySelector(".remove-interval");
-            removeButton.addEventListener("click", function () {
-                newForm.remove();
-                totalForms.value = document.querySelectorAll(".interval-form").length; // Update total forms count
-            });
-        });
-    
-        // Attach remove functionality to existing forms
-        document.querySelectorAll(".remove-interval").forEach((btn) => {
-            btn.addEventListener("click", function () {
-                let form = btn.closest(".interval-form"); // Find the closest form to the button
-                form.remove();
-                totalForms.value = document.querySelectorAll(".interval-form").length; // Update total forms count
-            });
-        });
-    });</script>
-     {% endcomment %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         
 </body>
