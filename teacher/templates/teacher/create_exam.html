@@ -231,35 +231,39 @@
                                             </button>
                                         </div>
                                         <div class="card-body">
-                                            {{ formset.management_form }}
+                                            <!-- Make sure these management form fields are present and visible -->
+                                            <input type="hidden" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="1">
+                                            <input type="hidden" name="form-INITIAL_FORMS" id="id_form-INITIAL_FORMS" value="0">
+                                            <input type="hidden" name="form-MIN_NUM_FORMS" id="id_form-MIN_NUM_FORMS" value="0">
+                                            <input type="hidden" name="form-MAX_NUM_FORMS" id="id_form-MAX_NUM_FORMS" value="1000">
+
                                             <div id="intervalForms">
-                                                {% for interval_form in formset %}
-                                                    <div class="interval-form mb-3 p-3 border rounded bg-light">
-                                                        <div class="row align-items-end">
-                                                            <div class="col-md-2">
-                                                                <label class="form-label fw-bold">Grade</label>
-                                                                {{ interval_form.grade }}
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <label class="form-label fw-bold">Min Score</label>
-                                                                {{ interval_form.min_score }}
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <label class="form-label fw-bold">Max Score</label>
-                                                                {{ interval_form.max_score }}
-                                                            </div>
-                                                            <div class="col-md-5">
-                                                                <label class="form-label fw-bold">Description</label>
-                                                                {{ interval_form.description }}
-                                                            </div>
-                                                            <div class="col-md-1">
-                                                                <button type="button" class="btn btn-danger remove-interval">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </div>
+                                                <!-- Template form that will be cloned -->
+                                                <div class="interval-form mb-3 p-3 border rounded bg-light">
+                                                    <div class="row align-items-end">
+                                                        <div class="col-md-2">
+                                                            <label class="form-label fw-bold">Grade</label>
+                                                            <input type="text" name="form-0-grade" class="form-control" id="id_form-0-grade">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label class="form-label fw-bold">Min Score</label>
+                                                            <input type="number" name="form-0-min_score" class="form-control" id="id_form-0-min_score">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label class="form-label fw-bold">Max Score</label>
+                                                            <input type="number" name="form-0-max_score" class="form-control" id="id_form-0-max_score">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label fw-bold">Description</label>
+                                                            <input type="text" name="form-0-description" class="form-control" id="id_form-0-description">
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <button type="button" class="btn btn-danger remove-interval">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                {% endfor %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -284,56 +288,59 @@
         const intervalFormsContainer = document.getElementById("intervalForms");
         const totalForms = document.getElementById("id_form-TOTAL_FORMS");
         
-        // Add console logs for debugging
-        console.log("Add Button:", addButton);
-        console.log("Container:", intervalFormsContainer);
-        console.log("Total Forms:", totalForms);
-        
-        // Check if elements exist
         if (!addButton || !intervalFormsContainer || !totalForms) {
             console.error("Required elements not found!");
             return;
         }
 
-        // Add new interval form
         addButton.addEventListener("click", function () {
-            console.log("Add button clicked"); // Debug log
             const forms = intervalFormsContainer.getElementsByClassName("interval-form");
-            if (forms.length === 0) {
-                console.error("No template form found!");
-                return;
-            }
-
+            const formCount = forms.length;
             const newForm = forms[0].cloneNode(true);
             
-            // Clear values in the cloned form
-            newForm.querySelectorAll("input, textarea, select").forEach((input) => {
+            // Update the form index
+            newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${formCount}-`);
+            
+            // Clear input values
+            newForm.querySelectorAll("input").forEach(input => {
                 input.value = "";
             });
 
             intervalFormsContainer.appendChild(newForm);
+            totalForms.value = formCount + 1;
             
-            // Update form indices
-            const formCount = forms.length + 1;
-            totalForms.value = formCount;
-            
-            // Add remove functionality to new form
+            // Add remove functionality
             newForm.querySelector(".remove-interval").addEventListener("click", function() {
-                if (intervalFormsContainer.getElementsByClassName("interval-form").length > 1) {
+                if (forms.length > 1) {
                     newForm.remove();
-                    totalForms.value = intervalFormsContainer.getElementsByClassName("interval-form").length;
+                    totalForms.value = forms.length - 1;
+                    updateFormIndices();
                 } else {
                     alert("You must have at least one grading interval!");
                 }
             });
         });
 
+        // Function to update form indices
+        function updateFormIndices() {
+            const forms = intervalFormsContainer.getElementsByClassName("interval-form");
+            for (let i = 0; i < forms.length; i++) {
+                const form = forms[i];
+                form.querySelectorAll("input").forEach(input => {
+                    input.name = input.name.replace(/-\d+-/, `-${i}-`);
+                    input.id = input.id.replace(/-\d+-/, `-${i}-`);
+                });
+            }
+        }
+
         // Add remove functionality to existing forms
         document.querySelectorAll(".remove-interval").forEach((btn) => {
             btn.addEventListener("click", function() {
-                if (intervalFormsContainer.getElementsByClassName("interval-form").length > 1) {
+                const forms = intervalFormsContainer.getElementsByClassName("interval-form");
+                if (forms.length > 1) {
                     btn.closest(".interval-form").remove();
-                    totalForms.value = intervalFormsContainer.getElementsByClassName("interval-form").length;
+                    totalForms.value = forms.length - 1;
+                    updateFormIndices();
                 } else {
                     alert("You must have at least one grading interval!");
                 }
