@@ -231,31 +231,31 @@
                                             </button>
                                         </div>
                                         <div class="card-body">
-                                            <!-- Management form fields -->
-                                            <input type="hidden" name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" value="1">
-                                            <input type="hidden" name="form-INITIAL_FORMS" id="id_form-INITIAL_FORMS" value="0">
-                                            <input type="hidden" name="form-MIN_NUM_FORMS" id="id_form-MIN_NUM_FORMS" value="0">
-                                            <input type="hidden" name="form-MAX_NUM_FORMS" id="id_form-MAX_NUM_FORMS" value="1000">
+                                            <!-- Management form fields - Updated prefix to match view -->
+                                            <input type="hidden" name="intervals-TOTAL_FORMS" id="id_intervals-TOTAL_FORMS" value="1">
+                                            <input type="hidden" name="intervals-INITIAL_FORMS" id="id_intervals-INITIAL_FORMS" value="0">
+                                            <input type="hidden" name="intervals-MIN_NUM_FORMS" id="id_intervals-MIN_NUM_FORMS" value="0">
+                                            <input type="hidden" name="intervals-MAX_NUM_FORMS" id="id_intervals-MAX_NUM_FORMS" value="1000">
 
                                             <div id="intervalForms">
-                                                <!-- Template form -->
+                                                <!-- Template form - Updated prefix to match view -->
                                                 <div class="interval-form mb-3 p-3 border rounded bg-light">
                                                     <div class="row align-items-end">
                                                         <div class="col-md-2">
                                                             <label class="form-label fw-bold">Grade</label>
-                                                            <input type="text" name="form-0-grade" class="form-control" id="id_form-0-grade">
+                                                            <input type="text" name="intervals-0-grade" class="form-control" id="id_intervals-0-grade">
                                                         </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label fw-bold">Min Score</label>
-                                                            <input type="number" name="form-0-min_score" class="form-control" id="id_form-0-min_score">
+                                                            <input type="number" name="intervals-0-min_score" class="form-control" id="id_intervals-0-min_score">
                                                         </div>
                                                         <div class="col-md-2">
                                                             <label class="form-label fw-bold">Max Score</label>
-                                                            <input type="number" name="form-0-max_score" class="form-control" id="id_form-0-max_score">
+                                                            <input type="number" name="intervals-0-max_score" class="form-control" id="id_intervals-0-max_score">
                                                         </div>
                                                         <div class="col-md-5">
                                                             <label class="form-label fw-bold">Description</label>
-                                                            <input type="text" name="form-0-description" class="form-control" id="id_form-0-description">
+                                                            <input type="text" name="intervals-0-description" class="form-control" id="id_intervals-0-description">
                                                         </div>
                                                         <div class="col-md-1">
                                                             <button type="button" class="btn btn-danger remove-interval">
@@ -286,7 +286,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         const addButton = document.getElementById("addInterval");
         const intervalFormsContainer = document.getElementById("intervalForms");
-        const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+        const totalForms = document.getElementById("id_intervals-TOTAL_FORMS");  // Updated ID
         
         if (!addButton || !intervalFormsContainer || !totalForms) {
             console.error("Required elements not found!");
@@ -298,8 +298,8 @@
             const formCount = forms.length;
             const newForm = forms[0].cloneNode(true);
             
-            // Update the form index
-            newForm.innerHTML = newForm.innerHTML.replace(/-0-/g, `-${formCount}-`);
+            // Update the form index with correct prefix
+            newForm.innerHTML = newForm.innerHTML.replace(/intervals-0-/g, `intervals-${formCount}-`);
             
             // Clear input values
             newForm.querySelectorAll("input").forEach(input => {
@@ -321,14 +321,14 @@
             });
         });
 
-        // Function to update form indices
+        // Function to update form indices with correct prefix
         function updateFormIndices() {
             const forms = intervalFormsContainer.getElementsByClassName("interval-form");
             for (let i = 0; i < forms.length; i++) {
                 const form = forms[i];
                 form.querySelectorAll("input").forEach(input => {
-                    input.name = input.name.replace(/-\d+-/, `-${i}-`);
-                    input.id = input.id.replace(/-\d+-/, `-${i}-`);
+                    input.name = input.name.replace(/intervals-\d+-/, `intervals-${i}-`);
+                    input.id = input.id.replace(/intervals-\d+-/, `intervals-${i}-`);
                 });
             }
         }
