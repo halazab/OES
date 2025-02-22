@@ -284,26 +284,20 @@
         const intervalFormsContainer = document.getElementById("intervalForms");
         const totalForms = document.getElementById("id_form-TOTAL_FORMS");
         
+        // Add console logs for debugging
+        console.log("Add Button:", addButton);
+        console.log("Container:", intervalFormsContainer);
+        console.log("Total Forms:", totalForms);
+        
         // Check if elements exist
         if (!addButton || !intervalFormsContainer || !totalForms) {
             console.error("Required elements not found!");
             return;
         }
 
-        // Function to update form indices
-        function updateFormIndices() {
-            const forms = intervalFormsContainer.getElementsByClassName("interval-form");
-            for (let i = 0; i < forms.length; i++) {
-                forms[i].querySelectorAll("input, textarea, select").forEach((input) => {
-                    input.name = input.name.replace(/form-\d+/, `form-${i}`);
-                    input.id = input.id.replace(/form-\d+/, `form-${i}`);
-                });
-            }
-            totalForms.value = forms.length;
-        }
-    
         // Add new interval form
         addButton.addEventListener("click", function () {
+            console.log("Add button clicked"); // Debug log
             const forms = intervalFormsContainer.getElementsByClassName("interval-form");
             if (forms.length === 0) {
                 console.error("No template form found!");
@@ -316,23 +310,30 @@
             newForm.querySelectorAll("input, textarea, select").forEach((input) => {
                 input.value = "";
             });
-    
+
             intervalFormsContainer.appendChild(newForm);
-            updateFormIndices();
-    
+            
+            // Update form indices
+            const formCount = forms.length + 1;
+            totalForms.value = formCount;
+            
             // Add remove functionality to new form
             newForm.querySelector(".remove-interval").addEventListener("click", function() {
-                newForm.remove();
-                updateFormIndices();
+                if (intervalFormsContainer.getElementsByClassName("interval-form").length > 1) {
+                    newForm.remove();
+                    totalForms.value = intervalFormsContainer.getElementsByClassName("interval-form").length;
+                } else {
+                    alert("You must have at least one grading interval!");
+                }
             });
         });
-    
+
         // Add remove functionality to existing forms
         document.querySelectorAll(".remove-interval").forEach((btn) => {
             btn.addEventListener("click", function() {
                 if (intervalFormsContainer.getElementsByClassName("interval-form").length > 1) {
                     btn.closest(".interval-form").remove();
-                    updateFormIndices();
+                    totalForms.value = intervalFormsContainer.getElementsByClassName("interval-form").length;
                 } else {
                     alert("You must have at least one grading interval!");
                 }
