@@ -912,20 +912,17 @@ def signin(request):
             messages.error(request, 'Both fields are required.') 
 
     return render(request, 'teacher/login.html', {})
+from django.views.decorators.http import require_POST
 
 @login_required
 @user_passes_test(is_teacher)
+@require_POST
 def delete_exam(request, exam_id):
-    profile = Profile.objects.get(user=request.user)
-    exam = get_object_or_404(Exams, id=exam_id, created_by=request.user)
-    
-    if request.method == 'POST':
+    try:
+        exam = Exams.objects.get(id=exam_id)
         exam.delete()
-        messages.success(request, 'Exam deleted successfully!')
-        return redirect('exam_list')
-    
-    context = {
-        'exam': exam,
-        'profile': profile,
-    }
-    return render(request, 'teacher/delete_exam.html', context)
+        return JsonResponse({'status': 'success'})
+    except Exams.DoesNotExist:
+        return JsonResponse({'status': 'error'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
