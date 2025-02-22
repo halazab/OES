@@ -912,3 +912,20 @@ def signin(request):
             messages.error(request, 'Both fields are required.') 
 
     return render(request, 'teacher/login.html', {})
+
+@login_required
+@user_passes_test(is_teacher)
+def delete_exam(request, exam_id):
+    profile = Profile.objects.get(user=request.user)
+    exam = get_object_or_404(Exams, id=exam_id, created_by=request.user)
+    
+    if request.method == 'POST':
+        exam.delete()
+        messages.success(request, 'Exam deleted successfully!')
+        return redirect('exam_list')
+    
+    context = {
+        'exam': exam,
+        'profile': profile,
+    }
+    return render(request, 'teacher/delete_exam.html', context)

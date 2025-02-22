@@ -27,4 +27,5 @@ urlpatterns = [
     path('teacher/profile/', views.teacher_profile, name='teacher_profile'),
     path('teacher/change-password/', views.change_password, name='teacher_change_password'),
     path('teacher/login/', views.signin, name='teacher_login'),
+    path('exam/<int:exam_id>/delete/', views.delete_exam, name='delete_exam'),
 ]
