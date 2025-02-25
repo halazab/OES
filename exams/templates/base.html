@@ -1,21 +1,86 @@
 {% load bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - Online Examination System</title>
+    <title>Online Examination System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .sidebar {
-            height: 100vh;
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-right: 1px solid #dee2e6;
+        /* Mobile Sidebar Styles */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #0d6efd;
+            z-index: 1030;
+            padding: 0 15px;
         }
+
+        .mobile-nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            padding: 15px 0;
+        }
+
+        .sidebar {
+            transition: 0.3s;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+        }
+
+        @media (max-width: 767.98px) {
+            .mobile-nav {
+                display: flex;
+                align-items: center;
+            }
+
+            .sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -100% !important;
+                width: 80% !important;
+                max-width: 300px !important;
+                height: 100vh !important;
+                z-index: 1050 !important;
+                background: white !important;
+                overflow-y: auto !important;
+                padding: 20px !important;
+                box-shadow: 0 0 15px rgba(0,0,0,0.2) !important;
+            }
+
+            .sidebar.show {
+                left: 0 !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding-top: 60px !important;
+            }
+
+            .overlay.show {
+                display: block;
+            }
+        }
+
         .profile-section {
             text-align: center;
             padding: 20px 0;
@@ -166,723 +231,119 @@
             color: white;
             transform: none;
         }
+
+        @media (min-width: 768px) {
+            .navbar {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4>Dashboard</h4>
-                    <a href="{% url 'signout'%}" class="text-danger text-decoration-none">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+    <!-- Mobile Header -->
+    <nav class="navbar navbar-dark bg-primary fixed-top d-md-none">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <span class="navbar-brand">Online Exam</span>
+        </div>
+    </nav>
+
+    <!-- Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Dashboard</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <!-- Profile Section -->
+            <div class="profile-section mb-4">
+                <div class="d-flex align-items-center mb-2">
+                    <img src="{{profile.profile_picture.url}}" alt="Profile" class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                    <h6 class="mb-0">{{profile.user.username}}</h6>
                 </div>
-                
-                <!-- Profile Section -->
-                <div class="profile-section text-start">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="{{profile.profile_picture.url}}" alt="Profile Picture" class="profile-picture me-3" style="width: 50px; height: 50px;">
-                        <h5 class="mb-0">{{profile.user.username}}</h5>
-                    </div>
-                    <span class="status-badge free-status mb-2 d-inline-block">Status: Free Plan</span>
-                </div>
-
-                <!-- Navigation Menu -->
-                <nav class="nav flex-column">
-                    <a class="nav-link ps-0" href="#"><i class="fas fa-user-circle"></i> Profile</a>
-                    
-                    <!-- Recent Exams -->
-                    <a class="nav-link ps-0" href="{% url 'recent_exams' %}">
-                        <i class="fas fa-clock"></i> Recent Exams
-                    </a>
-                    
-                    <!-- View All Exams -->
-                    <a class="nav-link ps-0" href="{% url 'exam_list' %}">
-                        <i class="fas fa-list"></i> View All Exams
-                    </a>
-                    
-                    <!-- Free Exams Section -->
-                    <a class="nav-link ps-0" data-bs-toggle="collapse" href="#freeExams">
-                        <i class="fas fa-file-alt"></i> Free Exams
-                    </a>
-                    <div class="collapse show" id="freeExams">
-                        <div class="exam-list border rounded p-2 mb-3 bg-light">
-                            {% for exam in exam %}
-                              {% if exam.is_premium != True%}
-                            <a class="nav-link ps-0 text-decoration-underline" href="{% url 'take_exam' exam.id%}">{{exam.title}}</a>
-                              {% endif %}
-                            {% endfor %}
-                            {% comment %} <a class="nav-link ps-0 text-decoration-underline" href="#">English Grammar</a>
-                            <a class="nav-link ps-0 text-decoration-underline" href="#">General Knowledge</a> {% endcomment %}
-                        </div>
-                    </div>
-
-                    <!-- Premium Exams Section -->
-                    <a class="nav-link ps-0" data-bs-toggle="collapse" href="#premiumExams">
-                        <i class="fas fa-crown"></i> Premium Exams
-                    </a>
-
-                    <div class="collapse" id="premiumExams">
-                        <div class="exam-list border rounded p-2 mb-3 bg-light">
-                            {% for exam in exam %}
-                             {% if exam.is_premium == True %}
-                            <a class="nav-link ps-0 text-muted text-decoration-underline" href="{% url 'take_exam' exam.id %}" onclick="alert('Please upgrade to access premium exams')">{{exam.title}}</a>
-                            {% endif%}
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Performance Section -->
-                    <a class="nav-link ps-0" href="{% url 'performance' %}">
-                        <i class="fas fa-chart-line"></i> Performance
-                    </a>
-                </nav>
-
-                <!-- Upgrade Button -->
-                <button class="btn btn-warning w-100 mt-3"<a href='{% url 'subscription_plans' %}'>Upgrade Account</a></button>
+                <span class="badge bg-secondary">Free Plan</span>
             </div>
-            {% block content %}
-            {% endblock %}
 
-            {% comment %} <!-- Main Content Area -->
-            <div class="col-md-9 col-lg-10 p-4">
-                <!-- Profile Section (Hidden by default) -->
-                <div id="profileContent" style="display: none;">
-                    <div class="row">
-                        <!-- Profile Information -->
-                        <div class="col-md-8">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Profile Information</h5>
-                                </div>
-                                <div class="card-body">
-                                    <form>
-                                        <!-- Profile Picture Upload -->
-                                        <div class="mb-4 text-center">
-                                            <img src="{{profile.profile_picture.url}}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                                            <div class="mb-3">
-                                                <label for="profilePicture" class="form-label d-block">Change Profile Picture</label>
-                                                <input type="file" class="form-control" id="profilePicture" accept="image/*">
-                                            </div>
-                                        </div>
+            <!-- Navigation Menu -->
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-circle me-2"></i> Profile
+                </a>
+                <a href="{% url 'recent_exams' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-clock me-2"></i> Recent Exams
+                </a>
+                <a href="{% url 'exam_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-list me-2"></i> View All Exams
+                </a>
+                <a href="{% url 'performance' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i> Performance
+                </a>
+            </div>
 
-                                        <div class="mb-3">
-                                            <label for="fullName" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName" value="{{profile.user.first_name}} {{profile.user.last_name}}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" value="{{profile.user.email}}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="phone" class="form-label">Phone Number</label>
-                                            <input type="tel" class="form-control" id="phone" value="+1 234 567 8900">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="education" class="form-label">Education Level</label>
-                                            <select class="form-select" id="education">
-                                                <option>High School</option>
-                                                <option>Bachelor's Degree</option>
-                                                <option>Master's Degree</option>
-                                                <option>PhD</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Account Settings -->
-                        <div class="col-md-4">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Account Settings</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="currentPassword" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" id="currentPassword">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="newPassword" class="form-label">New Password</label>
-                                        <input type="password" class="form-control" id="newPassword">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                        <input type="password" class="form-control" id="confirmPassword">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Update Password</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Free Exams -->
+            <div class="mt-4">
+                <h6 class="mb-3">Free Exams</h6>
+                <div class="list-group">
+                    {% for exam in exam %}
+                        {% if exam.is_premium != True %}
+                            <a href="{% url 'take_exam' exam.id %}" class="list-group-item list-group-item-action">
+                                {{exam.title}}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 </div>
+            </div>
 
-                <!-- Recent Exams Section -->
-                <div id="recentExamsContent">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Recent Exams</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- Search Field -->
-                            <div class="row mb-4">
-                                <div class="col-md-6 mx-auto">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search exams...">
-                                        <button class="btn btn-outline-secondary" type="button">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Exams Table -->
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-
-                                    <thead>
-                                        <tr>
-                                            <th>Exam Name</th>
-                                            <th>Date Created</th>
-                                            <th>Total Questions</th>
-                                            <th>Time Limit</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr onclick="showExamDetails()">
-                                            <td>Ba</td>
-                                            <td>2024-03-15</td>
-                                            <td>30</td>
-                                            <td>60 minutes</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
-                                        </tr>
-                                        <tr onclick="showExamDetails()">
-                                            <td>English Grammar</td>
-                                            <td>2024-03-14</td>
-                                            <td>25</td>
-                                            <td>45 minutes</td>
-                                            <td><span class="badge bg-warning">In Progress</span></td>
-                                        </tr>
-                                        <tr onclick="showExamDetails()">
-                                            <td>General Knowledge</td>
-                                            <td>2024-03-13</td>
-                                            <td>40</td>
-                                            <td>90 minutes</td>
-                                            <td><span class="badge bg-danger">Not Started</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Premium Exams -->
+            <div class="mt-4">
+                <h6 class="mb-3">Premium Exams</h6>
+                <div class="list-group">
+                    {% for exam in exam %}
+                        {% if exam.is_premium == True %}
+                            <a href="{% url 'take_exam' exam.id %}" class="list-group-item list-group-item-action disabled">
+                                {{exam.title}} <span class="badge bg-warning text-dark ms-2">Premium</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 </div>
+            </div>
 
-                <!-- View All Exams Section -->
-                <div id="allExamsContent" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">All Available Exams</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- Search Field -->
-                            <div class="row mb-4">
-                                <div class="col-md-6 mx-auto">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search exams...">
-                                        <button class="btn btn-outline-secondary" type="button">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Exams Table -->
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Exam Name</th>
-                                            <th>Date Created</th>
-                                            <th>Total Questions</th>
-                                            <th>Time Limit</th>
-                                            <th>Type</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for exam in exam %}
-                                        <tr>
-                                            <a href='{% url 'take_exam' exam.id %}' ><td>{{exam.title}}</td></a>
-                                            <td>{{exam.created_at}}</td>
-                                            <td>{{exam.number_of_questions}}</td>
-                                            <td>{{exam.duration}}</td>
-                                            <td><span class="badge bg-success">
-                                                {% if exam.is_premium == True %}
-                                                Premium
-                                                {%else%}
-                                                Free
-                                                {% endif %}
-                                            </span></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                   
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Performance Section (Hidden by default) -->
-                <div id="performanceContent" style="display: none;">
-                    <div class="row mb-4">
-                        <!-- Weak Subject Box -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card bg-danger text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="card-title mb-0">Weak Subject</h6>
-                                            <h2 class="mt-2 mb-0">Physics</h2>
-                                        </div>
-                                        <i class="fas fa-exclamation-circle fa-2x opacity-50"></i>
-                                    </div>
-                                    <p class="card-text mt-2 mb-0"><small>Average Score: 45%</small></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Strong Subject Box -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card bg-success text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="card-title mb-0">Strong Subject</h6>
-                                            <h2 class="mt-2 mb-0">Mathematics</h2>
-                                        </div>
-                                        <i class="fas fa-trophy fa-2x opacity-50"></i>
-                                    </div>
-                                    <p class="card-text mt-2 mb-0"><small>Average Score: 92%</small></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Highest Score Box -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card bg-primary text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="card-title mb-0">Highest Score</h6>
-                                            <h2 class="mt-2 mb-0">98%</h2>
-                                        </div>
-                                        <i class="fas fa-star fa-2x opacity-50"></i>
-                                    </div>
-                                    <p class="card-text mt-2 mb-0"><small>In Basic Mathematics</small></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lowest Score Box -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card bg-warning text-dark h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="card-title mb-0">Lowest Score</h6>
-                                            <h2 class="mt-2 mb-0">35%</h2>
-                                        </div>
-                                        <i class="fas fa-arrow-down fa-2x opacity-50"></i>
-                                    </div>
-                                    <p class="card-text mt-2 mb-0"><small>In Advanced Physics</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exam Details View -->
-                <div id="examDetailsContent" style="display: none;">
-                    <div class="w-75 mx-auto mt-5">
-                        <div class="card mb-3">
-                            <div class="card-body p-4" style="min-height: 400px;">
-                                <div class="mb-4 text-center">
-                                    <h3 class="card-title mb-2">Basic Mathematics</h3>
-                                </div>
-                                <div>
-                                    <h5 class="fw-bold mb-3">Description:</h5>
-                                    <p class="mb-0">This exam covers fundamental mathematical concepts including algebra, geometry, and basic arithmetic operations. Perfect for students looking to test their foundational mathematics knowledge.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center px-4">
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-clock me-2"></i>Time: 60 minutes
-                            </p>
-                            <button type="button" class="btn btn-primary" onclick="startExam()">Start Exam</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Mock Exam Section -->
-                <div id="mockExamContent" style="display: none;">
-                    <div class="container py-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="d-flex align-items-center">
-                                <h3>Basic Mathematics Exam</h3>
-                                <span class="ms-3">Question <span id="currentQuestionNum">1</span> of 3</span>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-clock me-2"></i>
-                                <span id="examTimer">60:00</span>
-                            </div>
-                        </div>
-                        
-                        <div class="question-container">
-                            <!-- Multiple Choice Question -->
-                            <div class="question-card card mb-4" data-question="1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Question 1</h5>
-                                    <p>What is the result of 15 × 4?</p>
-                                    <div class="choice-list">
-                                        <div class="choice-item" onclick="selectAnswer(this)">45</div>
-                                        <div class="choice-item" onclick="selectAnswer(this)">50</div>
-                                        <div class="choice-item" onclick="selectAnswer(this)">60</div>
-                                        <div class="choice-item" onclick="selectAnswer(this)">75</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- True/False Question -->
-                            <div class="question-card card mb-4" data-question="2" style="display: none;">
-                                <div class="card-body">
-                                    <h5 class="card-title">Question 2</h5>
-                                    <p>The sum of angles in a triangle is 180 degrees.</p>
-                                    <div class="choice-list">
-                                        <div class="choice-item" onclick="selectAnswer(this)">True</div>
-                                        <div class="choice-item" onclick="selectAnswer(this)">False</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Fill in the Blank -->
-                            <div class="question-card card mb-4" data-question="3" style="display: none;">
-                                <div class="card-body">
-                                    <h5 class="card-title">Question 3</h5>
-                                    <p>The square root of 144 is <span class="blank-input" contenteditable="true">____</span>.</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" disabled>Previous</button>
-                                
-                                <!-- Question Navigation List -->
-                                <div class="question-nav">
-                                    <ul class="pagination mb-0">
-                                        <!-- Will be populated by JavaScript -->
-                                    </ul>
-                                </div>
-                                
-                                <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">Next</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Upgrade Button -->
+            <div class="mt-4">
+                <a href="{% url 'subscription_plans' %}" class="btn btn-warning w-100">
+                    Upgrade Account
+                </a>
             </div>
         </div>
-    </div> {% endcomment %}
+    </div>
+
+    <!-- Desktop Sidebar -->
+    <div class="d-none d-md-block col-md-3 col-lg-2 bg-light sidebar">
+        <!-- Same content as mobile sidebar but for desktop -->
+    </div>
+
+    <!-- Main Content -->
+    <main class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+        <div class="container-fluid mt-4">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <style>
+        @media (max-width: 767.98px) {
+            body {
+                padding-top: 56px;
+            }
+            .offcanvas {
+                max-width: 80%;
+            }
+        }
+    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Get all the necessary elements
-        const profileLink = document.querySelector('a[href="#"].nav-link:has(i.fas.fa-user-circle)');
-        const recentExamsLink = document.querySelector('a[href="#"].nav-link:has(i.fas.fa-clock)');
-        const allExamsLink = document.querySelector('a[href="#"].nav-link:has(i.fas.fa-list)');
-        const profileContent = document.getElementById('profileContent');
-        const recentExamsContent = document.getElementById('recentExamsContent');
-        const allExamsContent = document.getElementById('allExamsContent');
-        const performanceLink = document.querySelector('a[href="#"].nav-link:has(i.fas.fa-chart-line)');
-        const performanceContent = document.getElementById('performanceContent');
-        const examDetailsContent = document.getElementById('examDetailsContent');
-        const mockExamContent = document.getElementById('mockExamContent');
-
-        // Function to hide all content sections
-        function hideAllContent() {
-            profileContent.style.display = 'none';
-            recentExamsContent.style.display = 'none';
-            allExamsContent.style.display = 'none';
-            performanceContent.style.display = 'none';
-            examDetailsContent.style.display = 'none';
-            mockExamContent.style.display = 'none';
-        }
-
-        // Add click event listeners
-        profileLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideAllContent();
-            profileContent.style.display = 'block';
-        });
-
-        recentExamsLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideAllContent();
-            recentExamsContent.style.display = 'block';
-        });
-
-        allExamsLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideAllContent();
-            allExamsContent.style.display = 'block';
-        });
-
-        performanceLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideAllContent();
-            performanceContent.style.display = 'block';
-        });
-
-        // Show Recent Exams section by default
-        hideAllContent();
-        recentExamsContent.style.display = 'block';
-
-        // Add click handler for premium exams
-        document.querySelectorAll('tr').forEach(row => {
-            row.addEventListener('click', function(e) {
-                const type = this.querySelector('.badge')?.textContent;
-                if (type === 'Premium') {
-                    e.preventDefault();
-                    alert('Please upgrade to access premium exams');
-                }
-            });
-        });
-
-        // Function to show exam details
-        function showExamDetails() {
-            hideAllContent();
-            document.getElementById('examDetailsContent').style.display = 'block';
-        }
-
-        // Update hideAllContent function
-        function hideAllContent() {
-            profileContent.style.display = 'none';
-            recentExamsContent.style.display = 'none';
-            allExamsContent.style.display = 'none';
-            performanceContent.style.display = 'none';
-            examDetailsContent.style.display = 'none';
-            mockExamContent.style.display = 'none';
-        }
-
-        // Update click handlers for recent exam rows
-        document.querySelectorAll('#recentExamsContent tr').forEach(row => {
-            if (row.parentElement.tagName === 'TBODY') {  // Only add click handlers to body rows, not header
-                row.style.cursor = 'pointer';
-                row.onclick = function(e) {
-                    e.preventDefault();
-                    showExamDetails();
-                };
-            }
-        });
-
-        // Update exam list click handlers
-        document.querySelectorAll('.exam-list .nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                showExamDetails();
-            });
-        });
-
-        // Update click handlers for all exam rows
-        document.querySelectorAll('#allExamsContent tr').forEach(row => {
-            if (row.parentElement.tagName === 'TBODY') {  // Only add click handlers to body rows, not header
-                row.style.cursor = 'pointer';
-                row.onclick = function(e) {
-                    e.preventDefault();
-                    showExamDetails();
-                };
-            }
-        });
-
-        let currentQuestion = 1;
-        const totalQuestions = 3;
-
-        function showQuestion(questionNumber) {
-            // Hide all questions
-            document.querySelectorAll('.question-card').forEach(card => {
-                card.style.display = 'none';
-            });
-            
-            // Show the current question (if it exists, otherwise show the first question)
-            const questionToShow = document.querySelector(`.question-card[data-question="${questionNumber}"]`) || 
-                                  document.querySelector(`.question-card[data-question="1"]`);
-            questionToShow.style.display = 'block';
-            
-            // Update question number display
-            document.getElementById('currentQuestionNum').textContent = questionNumber;
-            
-            // Update button states
-            document.getElementById('prevBtn').disabled = questionNumber === 1;
-            const nextBtn = document.getElementById('nextBtn');
-            nextBtn.textContent = questionNumber === 100 ? 'Submit' : 'Next';
-            
-            // Update pagination active state
-            document.querySelectorAll('.question-nav .page-item').forEach((item, index) => {
-                if (index + 1 === questionNumber) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-        }
-
-        function previousQuestion() {
-            if (currentQuestion > 1) {
-                currentQuestion--;
-                showQuestion(currentQuestion);
-                generatePagination();
-            }
-        }
-
-        function nextQuestion() {
-            if (currentQuestion < 100) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-                generatePagination();
-            } else {
-                // Handle exam submission
-                if (confirm('Are you sure you want to submit the exam?')) {
-                    alert('Exam submitted!');
-                    // Add your submission logic here
-                }
-            }
-        }
-
-        // Update startExam function
-        function startExam() {
-            hideAllContent();
-            document.getElementById('mockExamContent').style.display = 'block';
-            currentQuestion = 1;
-            generatePagination();
-            showQuestion(currentQuestion);
-            startTimer();
-        }
-
-        function selectAnswer(element) {
-            // Remove selected class from all choices in the same question
-            const questionCard = element.closest('.card');
-            questionCard.querySelectorAll('.choice-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            // Add selected class to clicked choice
-            element.classList.add('selected');
-        }
-
-        function startTimer() {
-            let timeLeft = 60 * 60; // 60 minutes in seconds
-            const timerDisplay = document.getElementById('examTimer');
-            
-            const timer = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                
-                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    alert('Time is up!');
-                    // Add logic to submit exam automatically
-                }
-                
-                timeLeft--;
-            }, 1000);
-        }
-
-        function goToQuestion(questionNumber) {
-            currentQuestion = questionNumber;
-            showQuestion(questionNumber);
-            generatePagination(); // Regenerate pagination to update the window
-        }
-
-        // Add this new function to generate pagination with window
-        function generatePagination() {
-            const paginationContainer = document.querySelector('.question-nav .pagination');
-            paginationContainer.innerHTML = ''; // Clear existing pagination
-            
-            // Always show first page
-            addPaginationItem(1, paginationContainer);
-            
-            const windowSize = 5; // Numbers to show before and after current question
-            const totalPages = 100;
-            let start = Math.max(2, currentQuestion - windowSize);
-            let end = Math.min(99, currentQuestion + windowSize);
-            
-            // Add ellipsis after first page if needed
-            if (start > 2) {
-                addEllipsis(paginationContainer);
-            }
-            
-            // Add pages within the window
-            for (let i = start; i <= end; i++) {
-                addPaginationItem(i, paginationContainer);
-            }
-            
-            // Add ellipsis before last page if needed
-            if (end < 99) {
-                addEllipsis(paginationContainer);
-            }
-            
-            // Always show last page
-            addPaginationItem(100, paginationContainer);
-        }
-
-        function addPaginationItem(pageNum, container) {
-            const li = document.createElement('li');
-            li.className = 'page-item' + (pageNum === currentQuestion ? ' active' : '');
-            li.innerHTML = `<button class="page-link" onclick="goToQuestion(${pageNum})">${pageNum}</button>`;
-            container.appendChild(li);
-        }
-
-        function addEllipsis(container) {
-            const li = document.createElement('li');
-            li.className = 'page-item disabled';
-            li.innerHTML = '<span class="page-link">...</span>';
-            container.appendChild(li);
-        }
-    </script>
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            var Tawk_API=Tawk_API||{};
-            Tawk_LoadStart=new Date();
-            
-            (function(){
-                var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-                s1.async=true;
-                s1.src="https://embed.tawk.to/67b8c483bae7e7190e5f7d51/1ikkrv8io";
-                s1.charset='UTF-8';
-                s1.setAttribute('crossorigin','*');
-                s0.parentNode.insertBefore(s1,s0);
-            })();
-
-            {% if request.user.is_authenticated %}
-            if (typeof Tawk_API !== 'undefined') {
-                Tawk_API.onLoad = function() {
-                    console.log('Tawk.to widget loaded');
-                    Tawk_API.setAttributes({
-                        'name': '{{ request.user.get_full_name|default:request.user.username }}',
-                        'email': '{{ request.user.email }}',
-                        'role': 'Student'
-                    }, function(error) {
-                        console.log('Attribute setting ' + (error ? 'failed: ' + error : 'succeeded'));
-                    });
-                };
-            }
-            {% endif %}
-        });
-    </script>
 </body>
 </html>
 

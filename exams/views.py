@@ -35,6 +35,7 @@ from django.db.models import Avg, Max, Count, F
 from django.db.models.functions import TruncMonth
 from django.core.paginator import Paginator
 from django.db import models
+from django.urls import reverse
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
@@ -1376,6 +1377,31 @@ def subscription_plans(request):
     profile = Profile.objects.get(user=request.user)
     plans = SubscriptionPlan.objects.all()
     return render(request, 'exams/subscription_plans.html', {'plans': plans, 'profile': profile, "exam":exam})
+
+def initiate_payment(request):
+    # ... existing code ...
+    
+    success_url = request.build_absolute_uri('/payment/success').rstrip('/')
+    
+    # When constructing the Chapa payment URL, ensure there are no double slashes
+    chapa_payment_url = {
+        'amount': amount,
+        'currency': 'ETB',
+        'email': request.user.email,
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'tx_ref': transaction_reference,
+        'callback_url': success_url,  # Use the cleaned URL
+        # ... other payment parameters ...
+    }
+    
+    # ... rest of the code ...
+
+def custom_404(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+def custom_500(request):
+    return render(request, 'errors/500.html', status=500)
 
 
 

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-hwntk8fr*g5y_smo90h#erj09s=e8vqd2#phmo%^g3+0o)c_6p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False  # Set to False for production
 
-ALLOWED_HOSTS = ['https://oes-nk2r.onrender.com', 'oes-nk2r.onrender.com']
+ALLOWED_HOSTS = ['https://oes-nk2r.onrender.com','oes-nk2r.onrender.com']
 
 
 # Application definition
@@ -38,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'bootstrap5', 
-    'exams',
+    'bootstrap5',
+    'exams',  # Make sure this is here
     'django_chapa',
     'teacher',
 ]
@@ -60,14 +61,15 @@ ROOT_URLCONF = 'online_exam.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [],  # Remove any explicit template dirs here
+        'APP_DIRS': True,  # Make sure this is True
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -116,10 +118,9 @@ USE_TZ = True
 
 
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 
-import os
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -129,14 +130,50 @@ CHAPA_API_URL = ''
 CHAPA_API_VERSION = ''
 CHAPA_TRANSACTION_MODEL = 'exams.chapa_model'
 
-CHAPA_SECRET_KEY = 'CHASECK_TEST-E4WMBP5QALa5oYAYTZ7Oy6V0YVvlujS9' 
+CHAPA_SECRET_KEY = 'CHASECK_TEST-BjSm5vKqLLOfYqar7ilo0E1vyz6sagAe' 
 STATICFILES_DIRS = [ 
     os.path.join(BASE_DIR, 'static'),
     ]
 
-BASE_URL = 'https://oes-nk2r.onrender.com/' 
+BASE_URL = 'https://oes-nk2r.onrender.com' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if DEBUG:
+    # Development settings
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    # Production settings
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'  # Changed from CompressedManifestStaticFilesStorage
+
+# Add logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'django.log',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 

@@ -8,6 +8,7 @@ from .models import (
     Exams, Question, Option, Result, ShortAnswer, 
     Subscription, PaymentTransaction, UserResponse, UserExam, Transaction
 )
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -104,6 +105,26 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'transaction_reference')
     date_hierarchy = 'created_at'
     readonly_fields = ('created_at', 'updated_at')
+
+    def save_model(self, request, obj, form, change):
+        if obj.status == 'success' and not change:  # New successful transaction
+            # Create or update subscription
+            subscription, created = Subscription.objects.get_or_create(
+                user=obj.user,
+                defaults={
+                    'subscription_type': 'premium',  # Or get from transaction details
+                    'amount': obj.amount,
+                    'start_date': timezone.now(),
+                    'end_date': timezone.now() + timezone.timedelta(days=30),  # 30-day subscription
+                    'transaction_reference': obj.transaction_reference
+                }
+            )
+            if not created:
+                subscription.end_date = timezone.now() + timezone.timedelta(days=30)
+                subscription.is_active = True
+                subscription.save()
+        
+        super().save_model(request, obj, form, change)
 
 admin.site.register(Exams)
 admin.site.register(Question)

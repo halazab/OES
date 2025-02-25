@@ -16,6 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import handler404, handler500
+from exams.views import custom_404, custom_500
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
@@ -23,3 +26,6 @@ urlpatterns = [
     path('', include('teacher.urls')),
     path('chapa-webhook', include('django_chapa.urls'))
 ]
+
+handler404 = 'exams.views.custom_404'
+handler500 = 'exams.views.custom_500'
