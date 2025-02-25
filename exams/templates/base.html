@@ -260,8 +260,26 @@
             <!-- Profile Section -->
             <div class="profile-section mb-4">
                 <div class="d-flex align-items-center mb-2">
-                    <img src="{{profile.profile_picture.url}}" alt="Profile" class="rounded-circle me-2" style="width: 50px; height: 50px;">
-                    <h6 class="mb-0">{{profile.user.username}}</h6>
+                    {% if user.is_authenticated %}
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" 
+                                 alt="Profile" 
+                                 class="rounded-circle me-2" 
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                        <h6 class="mb-0">{{ user.username }}</h6>
+                    {% else %}
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <h6 class="mb-0">Guest</h6>
+                    {% endif %}
                 </div>
                 <span class="badge bg-secondary">Free Plan</span>
             </div>
