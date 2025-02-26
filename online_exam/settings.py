@@ -138,7 +138,6 @@ STATICFILES_DIRS = [
 BASE_URL = 'https://oes-nk2r.onrender.com' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
 if DEBUG:
     # Development 
     # settings

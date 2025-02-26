@@ -5,8 +5,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from .models import (
-    Exams, Question, Option, Result, ShortAnswer, 
-    Subscription, PaymentTransaction, UserResponse, UserExam, Transaction
+    Exams, Question, Option, Result, ShortAnswer,
+    Subscription, PaymentTransaction, UserResponse, UserExam, Transaction, SupportTicket, TicketResponse, TicketAttachment
 )
 from django.utils import timezone
 
@@ -133,5 +133,7 @@ admin.site.register(Result)
 admin.site.register(ShortAnswer)
 admin.site.register(UserResponse)
 admin.site.register(UserExam)
-
+admin.site.register(TicketResponse)
+admin.site.register(TicketAttachment)
+admin.site.register(SupportTicket)
 admin.site.register(User, CustomUserAdmin)
